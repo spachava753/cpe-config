@@ -1,0 +1,141 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/spachava753/cpe/refs/heads/main/schema/cpe-config-schema.json
+version: "1.0"
+
+# MCP server definitions
+mcpServers:
+  # parallel:
+  #   type: http
+  #   url: https://search-mcp.parallel.ai/mcp
+  #   headers:
+  #     AUTHORIZATION: "Bearer ${PARALLEL_AI_API_KEY}"
+  exa:
+    type: stdio
+    command: bun
+    args:
+      - "x"
+      - "exa-mcp-server"
+      - "tools=web_search_exa,deep_search_exa"
+    env:
+      EXA_API_KEY: "${EXA_API_KEY}"
+
+# Model definitions with optional generation defaults
+models:
+  - ref: glm
+    display_name: "GLM 4.7"
+    id: glm-4.7
+    type: zai
+    base_url: https://api.z.ai/api/paas/v4/
+    api_key_env: Z_API_KEY
+    context_window: 202752
+    max_output: 131072
+    input_cost_per_million: 0.6
+    output_cost_per_million: 2.2
+    generationDefaults:
+      temperature: 1.0
+
+  - ref: flash
+    display_name: "Gemini 3 Flash Preview"
+    id: models/gemini-3-flash-preview
+    type: gemini
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/google-ai-studio/
+    api_key_env: GEMINI_API_KEY
+    context_window: 1048576
+    max_output: 65536
+    input_cost_per_million: 4
+    output_cost_per_million: 18
+    generationDefaults:
+      temperature: 1.0
+
+  - ref: g3
+    display_name: "Gemini 3 Pro Preview"
+    id: models/gemini-3-pro-preview
+    type: gemini
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/google-ai-studio/
+    api_key_env: GEMINI_API_KEY
+    context_window: 1048576
+    max_output: 65536
+    input_cost_per_million: 4
+    output_cost_per_million: 18
+    generationDefaults:
+      temperature: 1.0
+
+  - ref: gpt5
+    display_name: "GPT 5.2"
+    id: gpt-5.2-2025-12-11
+    type: responses
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/openai/
+    api_key_env: OPENAI_API_KEY
+    context_window: 400000
+    max_output: 128000
+    input_cost_per_million: 1.75
+    output_cost_per_million: 14
+
+  - ref: gpt5pro
+    display_name: "GPT 5.2 Pro"
+    id: gpt-5.2-pro-2025-12-11
+    type: responses
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/openai/
+    api_key_env: OPENAI_API_KEY
+    context_window: 400000
+    max_output: 128000
+    input_cost_per_million: 1.75
+    output_cost_per_million: 14
+
+  - ref: opus
+    display_name: "Claude Opus 4.5"
+    id: claude-opus-4-5-20251101
+    type: anthropic
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic/
+    auth_method: "oauth"
+    context_window: 200000
+    max_output: 64000
+    input_cost_per_million: 5
+    output_cost_per_million: 25
+    generationDefaults:
+      temperature: 1.0
+      maxGenerationTokens: 64000
+      thinkingBudget: "45000"
+
+  - ref: haiku
+    display_name: "Claude Haiku 4.5"
+    id: claude-haiku-4-5-20251001
+    type: anthropic
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic/
+    auth_method: "oauth"
+    context_window: 200000
+    max_output: 64000
+    input_cost_per_million: 1
+    output_cost_per_million: 5
+    generationDefaults:
+      temperature: 1.0
+      maxGenerationTokens: 64000
+
+  - ref: sonnet
+    display_name: "Claude Sonnet 4.5"
+    id: claude-sonnet-4-5-20250929
+    type: anthropic
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic/
+    auth_method: "oauth"
+    context_window: 1000000
+    max_output: 64000
+    input_cost_per_million: 3
+    output_cost_per_million: 15
+    generationDefaults:
+      temperature: 1.0
+      maxGenerationTokens: 64000
+    patchRequest:
+      includeHeaders:
+        anthropic-beta: context-1m-2025-08-07
+
+# Global defaults
+defaults:
+  systemPromptPath: "/Users/shashankpachava/Library/Application Support/cpe/agent_instructions.md"
+  model: opus
+  timeout: "15m"
+  noStream: true
+  codeMode:
+    enabled: true
+    # excludedTools:
+    #   - web_search_exa
+    #   - crawling_exa
+    #   - deep_search_exa
