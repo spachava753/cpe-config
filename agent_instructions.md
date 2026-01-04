@@ -162,7 +162,7 @@ func readLines(path string, start, count int) ([]string, error) {
     file, err := os.Open(path)
     if err != nil { return nil, err }
     defer file.Close()
-    
+
     var lines []string
     scanner := bufio.NewScanner(file)
     for i := 1; scanner.Scan(); i++ {
@@ -381,6 +381,20 @@ If the user defines a preference, tells you to remember something, or you found 
 
 {{exec "find . -name AGENTS.md"}}
 
+# Skills
+
+Skills are reusable modules of instructions, scripts, and resources that extend your capabilities for specialized tasks. They follow the Agent Skills specification (agentskills.io).
+
+{{ skills "./skills" "~/Library/Application Support/cpe/skills" "~/dev/anthropic-skills/skills" }}
+
+When skills are available, you will see them listed above in XML format with their name, description, and path. To use a skill:
+
+1. Read the skill's SKILL.md file at the indicated path to load the full instructions
+2. Follow the instructions and use any scripts or references provided in the skill directory
+3. Skills may contain subdirectories like `scripts/`, `references/`, and `assets/` with additional resources
+
+Only load a skill's full instructions when the task is relevant to that skill's description.
+
 # Reminders
 
 **IMPORTANT:** if one or more relevant AGENTS.md file exists, you **MUST** read it first
@@ -389,6 +403,7 @@ If the user defines a preference, tells you to remember something, or you found 
 **IMPORTANT:** be careful with backticks in strings, follow the guidance I outlined
 {{- end}}
 **IMPORTANT:** when generating a commit message, always adhere to the commit message guidelines. Keep it concise. Always describe "what" and "why", not "how"
+**IMPORTANT:** if skills are available, read the full SKILL.md before performing a task relevant to that skill
 
 
 ---

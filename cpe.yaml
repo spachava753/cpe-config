@@ -3,18 +3,9 @@ version: "1.0"
 
 # MCP server definitions
 mcpServers:
-  # parallel:
-  #   type: http
-  #   url: https://search-mcp.parallel.ai/mcp
-  #   headers:
-  #     AUTHORIZATION: "Bearer ${PARALLEL_AI_API_KEY}"
   exa:
     type: stdio
-    command: bun
-    args:
-      - "x"
-      - "exa-mcp-server"
-      - "tools=web_search_exa,deep_search_exa"
+    command: exa-mcp
     env:
       EXA_API_KEY: "${EXA_API_KEY}"
 
@@ -59,7 +50,7 @@ models:
     generationDefaults:
       temperature: 1.0
 
-  - ref: gpt5
+  - ref: gpt
     display_name: "GPT 5.2"
     id: gpt-5.2-2025-12-11
     type: responses
@@ -70,7 +61,7 @@ models:
     input_cost_per_million: 1.75
     output_cost_per_million: 14
 
-  - ref: gpt5pro
+  - ref: gptpro
     display_name: "GPT 5.2 Pro"
     id: gpt-5.2-pro-2025-12-11
     type: responses
@@ -135,7 +126,3 @@ defaults:
   noStream: true
   codeMode:
     enabled: true
-    # excludedTools:
-    #   - web_search_exa
-    #   - crawling_exa
-    #   - deep_search_exa
