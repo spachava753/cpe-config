@@ -100,6 +100,7 @@ models:
     generationDefaults:
       temperature: 1.0
       maxGenerationTokens: 64000
+      thinkingBudget: "45000"
 
   - ref: sonnet
     display_name: "Claude Sonnet 4.5"
@@ -114,6 +115,7 @@ models:
     generationDefaults:
       temperature: 1.0
       maxGenerationTokens: 64000
+      thinkingBudget: "45000"
     patchRequest:
       includeHeaders:
         anthropic-beta: context-1m-2025-08-07
