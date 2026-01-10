@@ -1,5 +1,5 @@
 ---
-name: go-skill-creator
+name: skill-creator
 description: Guide for creating effective skills using Go scripts. Use when users want to create a new skill (or update an existing skill) that extends AI agent capabilities with specialized knowledge, workflows, or tool integrations. This variant uses Go for all scripts.
 ---
 
