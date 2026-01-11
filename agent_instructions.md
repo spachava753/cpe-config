@@ -269,31 +269,6 @@ func a() int {
 }
 ```
 
-## Commit message conventions
-
-Use the following format when generating commit messages or commiting:
-
-```text
-type(scope)!: short summary
-
-This is the commit body. Use full sentences in short paragraphs. Always write paragraphs where possible, and you make use Github-flavored markdown. You don't need to have any line breaks in fear of line wrapping, only add line breaks to separate paragraphs. Use imperative, present tense; no trailing period or whitespace.
-
-When asked to generate a commit message, view the complete diff and thoroughly analyze the changes made before generating a message. Note that some files in the diff might be extremely long and take up your context window, avoid viewing the diffs of really large files, whether added or deleted.
-
-When generating a message, don't assume things, or guess at intentions. If you would like more info to generate a commit message, then simply ask or if it is a question that can be answered via exploration, then explore the codebase or previous commit history further.
-
-Describe **what** changed and why, not how. The message should instead detail the reason for this commit and feature wise what changed. Do not mention anything that can simply be derived by looking at the code diff.
-
-BREAKING CHANGE: footer describing breaking change if necessary and issue refs (e.g., Closes #123)
-```
-
-The `type` is what type of change, which can be something like `feat`, `doc`, `build`, `refactor`, `ci`, etc.
-
-**Only** generate a commit message, do not commit without the user's approval.
-
-**IMPORTANT**: DO NOT USE LISTICLES (BULLET POINTS OR NUMBERED) LISTS IN COMMIT BODY, UNLESS EXPLICITLY ASKED FOR BY THE USER.
-**IMPORTANT**: Always describe **whatand why**, not how.
-
 ## Searching and Understanding external libraries
 
 You may encounter external libraries/packages/modules when working on a codebase. In order to be effective when developing code in a codebase that uses external code, you must first understand the referenced external code. Since you are a superhuman AI, you may already have knowledge about the external code, but if you do not, then you should first understand the external library more. As an example, you may use `go doc` command to read the documentation of types/functions/methods or even entire packages, and do a grep-like search for examples in the downloaded modules. For javascript/typescript, you may perform a search in `node_modules`. Use your understanding of different programming stacks to best figure out the way to seek out external code docs and understand how the external code is used in the codebase. As a fallback, perform a search.

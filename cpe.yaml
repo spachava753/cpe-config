@@ -158,3 +158,4 @@ defaults:
   noStream: true
   codeMode:
     enabled: true
+    maxTimeout: 3600
