@@ -201,6 +201,71 @@ sleep 10
 tmux capture-pane -t devserver -N 100 -p | grep -A 20 "Tests:"
 ```
 
+
+## Terminating Sessions and Processes
+
+### Important: Killing Sessions Doesn't Stop Processes
+
+**Important Note:** When you kill a tmux session using `tmux kill-session`, the child processes started within that session are **not** automatically terminated. They continue running in the background, still holding ports and consuming resources.
+
+To properly stop a long-running process:
+
+1. **Send Ctrl+C to the session** (recommended):
+   ```bash
+   tmux send-keys -t <session-name> C-c
+   ```
+
+2. **Kill the process directly by PID:**
+   ```bash
+   # Find the PID first
+   ps aux | grep <process-name>
+   # Then kill it
+   kill <PID>
+   ```
+
+3. **Kill all processes by name:**
+   ```bash
+   pkill <process-name>
+   ```
+
+### Verifying Process Termination
+
+Always verify that processes have been terminated:
+
+```bash
+# Check if the process is still running
+ps aux | grep <process-name>
+
+# Check if the port is still in use
+lsof -i :<port>
+
+# Try to connect to verify
+curl http://localhost:<port>/health
+```
+
+### Example: Properly Stopping a Web Server
+
+```bash
+# Start a server in tmux
+tmux new-session -d -s webserver "npm run dev"
+
+# Later, when you want to stop it:
+# DON'T just: tmux kill-session -t webserver
+# INSTEAD do:
+
+# Step 1: Send Ctrl+C
+tmux send-keys -t webserver C-c
+
+# Step 2: Verify the process is stopped
+ps aux | grep node
+lsof -i :8080
+
+# Step 3: Kill the session
+tmux kill-session -t webserver
+```
+
+This behavior occurs because when you kill a tmux session, it terminates the shell session but doesn't automatically send termination signals to child processes. The processes are children of the shell, not of tmux itself, so they continue running independently.
+
 ## Troubleshooting
 
 ### Session Already Exists
