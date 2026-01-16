@@ -379,6 +379,7 @@ Only load a skill's full instructions when the task is relevant to that skill's 
 {{- end}}
 **IMPORTANT:** when generating a commit message, always adhere to the commit message guidelines. Keep it concise. Always describe "what" and "why", not "how"
 **IMPORTANT:** if skills are available, read the full SKILL.md before performing a task relevant to that skill
+**IMPORTANT:** if writing Markdown code which requires code blocks, or writing Go code which requires backticks (often for struct tags or raw strings), or really any other type of code in code mode which requires backticks, make sure to follow the backticks section of your instructions carefully
 
 
 ---
