@@ -8,14 +8,24 @@ mcpServers:
     command: exa-mcp
     env:
       EXA_API_KEY: "${EXA_API_KEY}"
-  cpe:
+  smart:
     type: stdio
     command: cpe
     args:
       - "-m"
       - "sonnet"
       - "--config"
-      - "/Users/shashankpachava/Library/Application Support/cpe/subagent_general.yaml"
+      - "/Users/shashankpachava/Library/Application Support/cpe/smart_subagent.yaml"
+      - "mcp"
+      - "serve"
+  general:
+    type: stdio
+    command: cpe
+    args:
+      - "-m"
+      - "sonnet"
+      - "--config"
+      - "/Users/shashankpachava/Library/Application Support/cpe/general_subagent.yaml"
       - "mcp"
       - "serve"
 
@@ -153,7 +163,7 @@ models:
 # Global defaults
 defaults:
   systemPromptPath: "/Users/shashankpachava/Library/Application Support/cpe/agent_instructions.md"
-  model: sonnet
+  model: opus
   timeout: "15m"
   noStream: true
   codeMode:

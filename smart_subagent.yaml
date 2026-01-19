@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/spachava753/cpe/refs/heads/main/schema/cpe-config-schema.json
+version: "1.0"
+
+# Subagent configuration
+# This marks this config as a subagent and provides metadata for the orchestrator
+subagent:
+  name: "smart-subagent"
+  description: "An intelligent subagent for delegated task execution. The model that powers this agent is quite intelligent, but costly, and can be slow. Use for tasks where only the most intelligent model can solve it, or where intelligence provides a boon, such as code review, deep and wide analysis, or for solving difficult and hard problems. If the general subagent fails at it's task, use this subagent, as it is likely it can solve it. Capable of file operations, code editing, shell commands, and tool usage within a scoped task boundary. Uses code mode"
+  # outputSchemaPath: "./schemas/subagent-output.json"  # Optional: enforce structured output
+
+# MCP server definitions
+mcpServers:
+  exa:
+    type: stdio
+    command: exa-mcp
+    env:
+      EXA_API_KEY: "${EXA_API_KEY}"
+
+# Model definitions with optional generation defaults
+models:
+  - ref: opus
+    display_name: "Claude Opus 4.5"
+    id: claude-opus-4-5-20251101
+    type: anthropic
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic/
+    auth_method: "oauth"
+    context_window: 200000
+    max_output: 64000
+    input_cost_per_million: 5
+    output_cost_per_million: 25
+    generationDefaults:
+      temperature: 1.0
+      maxGenerationTokens: 64000
+      thinkingBudget: "45000"
+    patchRequest:
+      includeHeaders:
+        anthropic-beta: interleaved-thinking-2025-05-14
+
+# Global defaults
+defaults:
+  systemPromptPath: "/Users/shashankpachava/Library/Application Support/cpe/subagent_instructions.md"
+  model: opus
+  timeout: "15m"
+  noStream: true
+  codeMode:
+    enabled: true

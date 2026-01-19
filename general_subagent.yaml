@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/spachava753/cpe/refs/heads/main/schema/cpe-config-schema.json
+version: "1.0"
+
+# Subagent configuration
+# This marks this config as a subagent and provides metadata for the orchestrator
+subagent:
+  name: "general-subagent"
+  description: "A general subagent for delegated task execution. The model that powers this is a workhorse, capable of many different types of tasks. Use this for well-scoped tasks, or one-off tasks to gather information. Also recommened to use launch multuple general subagents in parallel where possible for reducing latency and finishing work faster. Capable of file operations, code editing, shell commands, and tool usage within a scoped task boundary. Uses code mode"
+  # outputSchemaPath: "./schemas/subagent-output.json"  # Optional: enforce structured output
+
+# MCP server definitions
+mcpServers:
+  exa:
+    type: stdio
+    command: exa-mcp
+    env:
+      EXA_API_KEY: "${EXA_API_KEY}"
+
+# Model definitions with optional generation defaults
+models:
+  - ref: sonnet
+    display_name: "Claude Sonnet 4.5"
+    id: claude-sonnet-4-5-20250929
+    type: anthropic
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic/
+    auth_method: "oauth"
+    context_window: 1000000
+    max_output: 64000
+    input_cost_per_million: 3
+    output_cost_per_million: 15
+    generationDefaults:
+      temperature: 1.0
+      maxGenerationTokens: 64000
+      thinkingBudget: "45000"
+    patchRequest:
+      includeHeaders:
+        anthropic-beta: interleaved-thinking-2025-05-14,context-management-2025-06-27
+      jsonPatch:
+        - op: add
+          path: /context_management
+          value:
+            edits:
+              - type: "clear_thinking_20251015"
+                keep: "all"
+
+# Global defaults
+defaults:
+  systemPromptPath: "/Users/shashankpachava/Library/Application Support/cpe/subagent_instructions.md"
+  model: sonnet
+  timeout: "15m"
+  noStream: true
+  codeMode:
+    enabled: true
