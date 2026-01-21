@@ -22,7 +22,8 @@ models:
     display_name: "Claude Opus 4.5"
     id: claude-opus-4-5-20251101
     type: anthropic
-    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic/
+    # base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic/
+    base_url: https://aag-gateway.fly.dev/anthropic/
     auth_method: "oauth"
     context_window: 200000
     max_output: 64000

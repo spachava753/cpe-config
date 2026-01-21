@@ -22,7 +22,8 @@ models:
     display_name: "Claude Sonnet 4.5"
     id: claude-sonnet-4-5-20250929
     type: anthropic
-    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic/
+    # base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic/
+    base_url: https://aag-gateway.fly.dev/anthropic/
     auth_method: "oauth"
     context_window: 1000000
     max_output: 64000
