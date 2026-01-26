@@ -67,9 +67,9 @@ Before writing the message, always run `git diff` or `git diff --staged` to see 
 
 ## Rules
 
-- **Describe what and why, not how** - Implementation details are in the diff
+- **Describe what and why, not how** - Implementation details are in the diff; focus on purpose and impact
 - **Use imperative mood** - "Add feature" not "Added feature"
-- **No bullet points** - Use prose paragraphs in the body
+- **Use prose, not listicles** - Write body as flowing paragraphs, never use bullet points or lists
 - **Don't assume** - Ask for clarification or explore the codebase if needed
 - **Generate only** - Do not commit without user approval
 - **Ignore conversation history** - Only the final diff matters

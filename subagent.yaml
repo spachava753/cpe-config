@@ -4,8 +4,8 @@ version: "1.0"
 # Subagent configuration
 # This marks this config as a subagent and provides metadata for the orchestrator
 subagent:
-  name: "smart-subagent"
-  description: "An intelligent subagent for delegated task execution. The model that powers this agent is quite intelligent, but costly, and can be slow. Use for tasks where only the most intelligent model can solve it, or where intelligence provides a boon, such as code review, deep and wide analysis, or for solving difficult and hard problems. If the general subagent fails at it's task, use this subagent, as it is likely it can solve it. Capable of file operations, code editing, shell commands, and tool usage within a scoped task boundary. Uses code mode"
+  name: "subagent"
+  description: "A general subagent for delegated task execution. The model that powers this is an intelligent workhorse, capable of many different types of tasks. Use this for well-scoped tasks, or one-off tasks to gather information, such as for searching and summarizing, questions of third party codebases or code, Q and A across some text, etc. Also recommened to use launch multuple subagents in parallel where possible for reducing latency and finishing work faster. Capable of file operations, code editing, shell commands, and tool usage within a scoped task boundary. Uses code mode"
   # outputSchemaPath: "./schemas/subagent-output.json"  # Optional: enforce structured output
 
 # MCP server definitions
@@ -39,7 +39,7 @@ models:
 
 # Global defaults
 defaults:
-  systemPromptPath: "/Users/shashankpachava/Library/Application Support/cpe/subagent_instructions.md"
+  systemPromptPath: "$HOME/Library/Application Support/cpe/subagent_instructions.md"
   model: opus
   timeout: "15m"
   noStream: true
