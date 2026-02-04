@@ -11,10 +11,18 @@ subagent:
 # MCP server definitions
 mcpServers:
   exa:
-    type: stdio
     command: exa-mcp
+    args: []
+    type: stdio
     env:
       EXA_API_KEY: "${EXA_API_KEY}"
+    disabledTools:
+      - exa_answer
+  editor:
+    type: stdio
+    command: editor-mcp
+    enabledTools:
+      - text_edit
 
 # Model definitions with optional generation defaults
 models:
@@ -36,12 +44,26 @@ models:
     patchRequest:
       includeHeaders:
         anthropic-beta: interleaved-thinking-2025-05-14
+  - ref: kimi
+    display_name: Kimi K2.5
+    id: kimi-k2.5
+    type: anthropic
+    base_url: https://aag-gateway.fly.dev/moonshot-anthropic/
+    api_key_env: "MOONSHOT_API_KEY"
+    context_window: 256000
+    max_output: 64000
+    input_cost_per_million: 0.6
+    output_cost_per_million: 3
+    systemPromptPath: $HOME/Library/Application Support/cpe/kimi_instructions.md
+    generationDefaults:
+      temperature: 1
+      maxGenerationTokens: 64000
+      # thinkingBudget: "enabled"
 
 # Global defaults
 defaults:
   systemPromptPath: "$HOME/Library/Application Support/cpe/subagent_instructions.md"
   model: opus
   timeout: "15m"
-  noStream: true
   codeMode:
     enabled: true
