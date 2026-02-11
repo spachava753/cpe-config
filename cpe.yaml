@@ -11,8 +11,6 @@ mcpServers:
   general:
     command: cpe
     args:
-      - -m
-      - opus
       - --config
       - $HOME/Library/Application Support/cpe/subagent.yaml
       - mcp
