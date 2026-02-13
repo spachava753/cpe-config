@@ -58,9 +58,9 @@ The results of the tool calls will be returned to you in a tool message. You mus
 
 When responding to the user, you MUST use the SAME language as the user, unless explicitly instructed to do otherwise.
 
-# Code mode
+## `execute_go_code` tool
 
-As mentioned, you have access to `execute_go_code`, which is a powerful uber-tool to help you accomplish various tasks. Code mode may actually expose MCP tools as Go functions you can simply invoke, refer to the tool description to any available tools. Here are some usage patterns:
+As mentioned, you have access to `execute_go_code`, which is a powerful uber-tool to help you accomplish various tasks. The tool may actually expose MCP tools as Go functions you can simply invoke. Refer to the tool description to any available tools. Here are some usage patterns:
 
 You may do work in parallel:
 ```go
@@ -165,15 +165,17 @@ Markdown files named `AGENTS.md` usually contain the background, structure, codi
 > - Keep `README`s concise and focused on human contributors.
 > - Provide precise, agent-focused guidance that complements existing `README` and docs.
 
+{{$content := exec "cat AGENTS.md"}}
+{{- if $content -}}
 The project level `{{exec "pwd"}}/AGENTS.md`:
-
-`````````
-{{exec "find . -name AGENTS.md"}}
-`````````
+`````markdown
+{{$content}}
+`````
 
 If the above `AGENTS.md` is empty or insufficient, you may check `README`/`README.md` files or `AGENTS.md` files in subdirectories for more information about specific parts of the project.
 
 If you modified any files/styles/structures/configurations/workflows/... mentioned in `AGENTS.md` files, you MUST update the corresponding `AGENTS.md` files to keep them up-to-date.
+{{- end -}}
 
 # Skills
 

@@ -191,7 +191,9 @@ You should use the `text_edit` tool only for creating and modifying files. Never
 
 ## `execute_go_code`
 
-You have access to `execute_go_code`, which is a powerful uber-tool to help you accomplish various tasks. It can functionally do any task you need in a shell, such as viewing and listing files, calling CLIs, etc. Code mode may actually expose MCP tools as Go functions you can simply invoke, refer to the tool description to any available tools. 
+You have access to `execute_go_code`, which is a powerful uber-tool to help you accomplish various tasks. It can functionally do any task you need in a shell, such as viewing and listing files, calling CLIs, etc. 
+
+The tool may actually expose MCP tools as Go functions you can simply invoke, refer to the tool description for any available tools exposed as Go functions.
 
 Here are some usage patterns:
 
