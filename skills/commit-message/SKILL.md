@@ -65,9 +65,39 @@ The commit describes the **final state** being committed, not the journey to get
 
 Before writing the message, always run `git diff` or `git diff --staged` to see exactly what will be committed.
 
+## Critical: Communicate Purpose and Impact, Not Mechanics
+
+The body must answer **why this change exists** and **what effect it has**, not catalogue what was done. The diff already shows every renamed function, moved constant, and changed signature — repeating that in prose wastes the reader's time and buries the actual reasoning.
+
+**Ask yourself before writing each sentence:** "Could the reader learn this just by reading the diff?" If yes, leave it out. The commit message is the only place to record *motivation*, *trade-offs*, and *consequences* that are invisible in code.
+
+**Bad** (narrates the diff):
+```text
+Move MessageIDKey from internal/types to internal/storage. Delete the
+DialogSaver interface from internal/types. Rename SaveMessage to
+saveMessage. Add SaveMessages method that takes []SaveMessageOptions
+and returns iter.Seq[string]. Update all callers in agent/ and
+commands/ packages. Add two new sqlc queries.
+```
+
+**Good** (explains purpose and impact):
+```text
+Consumers were tightly coupled to *DialogStorage and its dozen exported
+methods, making it impossible to depend on only the subset of operations
+actually needed. This made testing harder and obscured the real
+dependency surface of each caller.
+
+Introduce a composed MessageDB interface so each consumer declares
+exactly what it requires. Message identity and lineage are now conveyed
+through ExtraFields rather than auxiliary return values, eliminating
+storage internals leaking into every call site.
+```
+
+The good version tells the reader *what problem existed*, *what design decision was made*, and *what improves as a result*. The specific renames, moves, and signature changes are left to the diff where they belong.
+
 ## Rules
 
-- **Describe what and why, not how** - Implementation details are in the diff; focus on purpose and impact
+- **Purpose over mechanics** - Explain why the change exists and what improves; never narrate the diff
 - **Use imperative mood** - "Add feature" not "Added feature"
 - **Use prose, not listicles** - Write body as flowing paragraphs, never use bullet points or lists
 - **Don't assume** - Ask for clarification or explore the codebase if needed
@@ -81,30 +111,53 @@ Before writing the message, always run `git diff` or `git diff --staged` to see 
 ```text
 feat(auth): add OAuth2 login support
 
-Users can now authenticate using Google and GitHub OAuth providers. This removes the friction of password-based registration for new users.
+Users can now authenticate using Google and GitHub OAuth providers. This
+removes the friction of password-based registration for new users.
 ```
 
 ### Bug fix with issue reference
 ```text
 fix(api): handle null response from external service
 
-The payment gateway occasionally returns null instead of an error object. This caused unhandled exceptions in production.
+The payment gateway occasionally returns null instead of an error
+object. This caused unhandled exceptions in production.
 
 Closes #456
 ```
 
+### Refactor with many file changes
+```text
+refactor(storage): decouple consumers from concrete DialogStorage type
+
+Consumers were tightly coupled to *DialogStorage and its dozen exported
+methods, making it impossible to depend on only the subset of operations
+actually needed. This made testing harder and obscured the real
+dependency surface of each caller.
+
+Introduce a composed MessageDB interface so each consumer declares
+exactly what it requires. Message identity and lineage are now conveyed
+through ExtraFields rather than auxiliary return values, eliminating
+storage internals leaking into every call site.
+```
+
+Note how this does **not** list every renamed method, moved constant, or updated import — the diff shows all of that. Instead it explains the coupling problem, the interface design decision, and the concrete benefit.
+
 ### Breaking change
 ```text
-refactor(config)!: change config file format from YAML to TOML
+refactor(config)!: replace YAML config format with TOML
 
-TOML provides better type safety and clearer syntax for nested configuration. Existing YAML configs must be migrated using the provided migration script.
+YAML's implicit typing and indentation sensitivity caused recurring
+misconfiguration bugs in production deployments. TOML makes types
+explicit and catches structural errors at parse time.
 
-BREAKING CHANGE: Configuration files must be converted from YAML to TOML format. Run `migrate-config` to convert automatically.
+BREAKING CHANGE: Configuration files must be converted from YAML to
+TOML format. Run `migrate-config` to convert automatically.
 ```
 
 ### Documentation
 ```text
 docs(readme): add installation instructions for Windows
 
-The README now includes PowerShell commands for Windows users and notes about WSL compatibility.
+The README now includes PowerShell commands for Windows users and notes
+about WSL compatibility.
 ```
