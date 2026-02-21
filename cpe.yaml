@@ -56,6 +56,7 @@ models:
     max_output: 65536
     input_cost_per_million: 4
     output_cost_per_million: 18
+    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     generationDefaults:
       temperature: 1
   - ref: gpt
@@ -156,6 +157,18 @@ models:
     generationDefaults:
       temperature: 1
       maxGenerationTokens: 64000
+  - ref: codex
+    display_name: GPT 5.3 Codex
+    id: gpt-5.3-codex
+    type: responses
+    base_url: https://aag-gateway.fly.dev/codex/
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 272000
+    max_output: 128000
+    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
+    generationDefaults:
+      thinkingBudget: high
 defaults:
   systemPromptPath: $HOME/Library/Application Support/cpe/agent_instructions.md
   model: opus
