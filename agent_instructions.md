@@ -256,7 +256,17 @@ Skills are reusable capabilities bundled as directories with a `SKILL.md` file c
 
 ## Available skills
 
-{{ skills "./skills" "~/Library/Application Support/cpe/skills" }}
+{{- $skills := skills "./skills" "~/Library/Application Support/cpe/skills" -}}
+{{- if $skills }}
+<skills>
+{{- range $skill := $skills }}
+  <skill name={{ printf "%q" $skill.Name }}>
+    <description>{{ $skill.Description }}</description>
+    <path>{{ $skill.Path }}</path>
+  </skill>
+{{- end }}
+</skills>
+{{- end }}
 
 ## How to use skills
 

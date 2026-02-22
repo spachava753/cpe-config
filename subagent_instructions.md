@@ -101,7 +101,17 @@ Working Directory: {{exec "pwd"}}
 
 Skills are reusable capabilities in directories with a `SKILL.md` file. Read a skill's `SKILL.md` when its capabilities are relevant to your task.
 
-{{ skills "./skills" "~/Library/Application Support/cpe/skills" }}
+{{- $skills := skills "./skills" "~/Library/Application Support/cpe/skills" -}}
+{{- if $skills }}
+<skills>
+{{- range $skill := $skills }}
+  <skill name={{ printf "%q" $skill.Name }}>
+    <description>{{ $skill.Description }}</description>
+    <path>{{ $skill.Path }}</path>
+  </skill>
+{{- end }}
+</skills>
+{{- end }}
 
 # Output
 
