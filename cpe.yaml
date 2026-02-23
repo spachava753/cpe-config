@@ -69,6 +69,7 @@ models:
     max_output: 64000
     input_cost_per_million: 1.75
     output_cost_per_million: 14
+    cache_read_cost_per_million: 0.175
     systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
   - ref: gptpro
     display_name: GPT 5.2 Pro
@@ -78,8 +79,8 @@ models:
     api_key_env: OPENAI_API_KEY
     context_window: 400000
     max_output: 64000
-    input_cost_per_million: 1.75
-    output_cost_per_million: 14
+    input_cost_per_million: 21.00
+    output_cost_per_million: 168.00
   - ref: opus
     display_name: Claude Opus 4.6
     id: claude-opus-4-6
@@ -91,6 +92,8 @@ models:
     max_output: 64000
     input_cost_per_million: 5
     output_cost_per_million: 25
+    cache_read_cost_per_million: 0.5
+    cache_write_cost_per_million: 6.25
     generationDefaults:
       temperature: 1
       maxGenerationTokens: 64000
@@ -105,6 +108,8 @@ models:
     max_output: 64000
     input_cost_per_million: 1
     output_cost_per_million: 5
+    cache_read_cost_per_million: 0.1
+    cache_write_cost_per_million: 1.25
     patchRequest:
       jsonPatch:
         - op: add
@@ -130,6 +135,8 @@ models:
     max_output: 64000
     input_cost_per_million: 3
     output_cost_per_million: 15
+    cache_read_cost_per_million: 0.3
+    cache_write_cost_per_million: 3.75
     patchRequest:
       jsonPatch:
         - op: add
@@ -166,6 +173,9 @@ models:
     auth_method: oauth
     context_window: 272000
     max_output: 128000
+    input_cost_per_million: 1.75
+    output_cost_per_million: 14
+    cache_read_cost_per_million: 0.175
     systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     generationDefaults:
       thinkingBudget: high
@@ -176,6 +186,7 @@ defaults:
   codeMode:
     enabled: true
     maxTimeout: 3600
+    largeOutputCharLimit: 150000
     excludedTools:
       - text_edit
 version: "1.0"
