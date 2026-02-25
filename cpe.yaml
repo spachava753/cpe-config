@@ -61,24 +61,27 @@ models:
       temperature: 1
   - ref: gpt
     display_name: GPT 5.2
-    id: gpt-5.2-2025-12-11
+    id: gpt-5.2
     type: responses
-    base_url: https://aag-gateway.fly.dev/openai/
-    api_key_env: OPENAI_API_KEY
-    context_window: 400000
-    max_output: 64000
+    base_url: https://aag-gateway.fly.dev/codex/
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 272000
+    max_output: 128000
     input_cost_per_million: 1.75
     output_cost_per_million: 14
     cache_read_cost_per_million: 0.175
     systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
+    generationDefaults:
+      thinkingBudget: high
   - ref: gptpro
     display_name: GPT 5.2 Pro
-    id: gpt-5.2-pro-2025-12-11
+    id: gpt-5.2-pro
     type: responses
     base_url: https://aag-gateway.fly.dev/openai/
     api_key_env: OPENAI_API_KEY
-    context_window: 400000
-    max_output: 64000
+    context_window: 272000
+    max_output: 128000
     input_cost_per_million: 21.00
     output_cost_per_million: 168.00
   - ref: opus
@@ -179,6 +182,25 @@ models:
     systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     generationDefaults:
       thinkingBudget: high
+  - ref: spark
+    display_name: GPT 5.3 Codex Spark
+    id: gpt-5.3-codex-spark
+    type: responses
+    base_url: https://aag-gateway.fly.dev/codex/
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 272000
+    max_output: 128000
+    input_cost_per_million: 1.75
+    output_cost_per_million: 14
+    cache_read_cost_per_million: 0.175
+    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
+    generationDefaults:
+      thinkingBudget: xhigh
+    patchRequest:
+      jsonPatch:
+        - op: remove
+          path: /reasoning/summary
 defaults:
   systemPromptPath: $HOME/Library/Application Support/cpe/agent_instructions.md
   model: codex
