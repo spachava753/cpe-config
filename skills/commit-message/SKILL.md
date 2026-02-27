@@ -1,6 +1,6 @@
 ---
 name: commit-message
-description: Generate conventional commit messages. Use when asked to create a commit message, write a commit, or summarize changes for version control
+description: Generate conventional commit messages. Use when asked to commit changes, create/generate a commit message, write a commit, or summarize changes for version control
 ---
 
 # Commit Message Generator

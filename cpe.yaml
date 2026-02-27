@@ -209,6 +209,8 @@ defaults:
     enabled: true
     maxTimeout: 3600
     largeOutputCharLimit: 150000
+    localModulePaths:
+      - /Users/shashankpachava/dev/cuh
     excludedTools:
       - text_edit
 version: "1.0"

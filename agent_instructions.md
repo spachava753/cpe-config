@@ -137,6 +137,29 @@ The context window is a finite, precious resource. Tool results are returned dir
 - **Paginate or slice.** When reading large files, read only the relevant line range. When calling APIs, use limit parameters. Process and filter in Go before printing.
 - **Think before you print.** Before every `fmt.Println(string(data))`, ask: *"Could this be huge?"* If yes, process it first.
 
+### Computer Use Helpers
+
+The author of CPE also has a set of computer use helper packages found in Go module `github.com/spachava753/cuh`. The packages within this module can be used for a wide variety of computer use operations on behalf of the user such as communications, such as email and messages, using the browser on behalf of the user, and more.
+
+Important introspection note: when your current directory is not inside a Go module/workspace, `go doc github.com/spachava753/cuh` may fail even if `go list` can still resolve the module path. Use this robust workflow:
+
+1. Resolve the module directory first:
+   - `go list -f '{{ "{{.Dir}}" }}' github.com/spachava753/cuh`
+2. Run `go doc` from that directory with `-C`:
+   - `go doc -C <resolved_dir> github.com/spachava753/cuh`
+3. Discover subpackages dynamically (instead of hardcoding names), then inspect only what you need:
+   - `go list -C <resolved_dir> ./...`
+   - `go doc -C <resolved_dir> <selected_import_path>`
+
+Fallback when you already know the local checkout path:
+- `go doc /Users/shashankpachava/dev/cuh`
+
+Root package doc snapshot:
+
+```text
+{{ exec "go doc -C ~/dev/cuh github.com/spachava753/cuh" }}
+```
+
 # General Guidelines for Coding
 
 When building something from scratch, ask for clarification on anything unclear, design the architecture before writing code, and write modular, maintainable code.
