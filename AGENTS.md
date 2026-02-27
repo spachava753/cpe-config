@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This repository is a CPE home configuration + skills workspace. It stores local model/tool config, system prompts, and reusable agent skills.
+This repository is a [CPE](https://github.com/spachava753/cpe) agent configuration + skills workspace. It stores local model/tool config, system prompts, and reusable agent skills.
 
 ## Component Index
 
@@ -13,7 +13,5 @@ This repository is a CPE home configuration + skills workspace. It stores local 
 ## Upstream CPE Reference
 
 For product behavior and CLI usage, refer to the upstream README:
-
-- `https://github.com/spachava753/cpe`
 - Raw README: `https://raw.githubusercontent.com/spachava753/cpe/main/README.md`
-- Config schema: `https://raw.githubusercontent.com/spachava753/cpe/refs/heads/main/schema/cpe-config-schema.json`
+- Config schema for `cpe.yaml` and `subagent.yaml`: `https://raw.githubusercontent.com/spachava753/cpe/refs/heads/main/schema/cpe-config-schema.json`
