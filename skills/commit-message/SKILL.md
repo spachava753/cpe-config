@@ -27,6 +27,7 @@ Closes #123
 5. **Identify scope** - Component, module, or area affected (optional)
 6. **Write summary** - Concise imperative description (<50 chars ideal)
 7. **Write body** - Explain what and why, not how
+8. **Commit when requested** - If the user asked to commit, run `git commit` with the generated message immediately (no separate message approval step)
 
 ## Verify Files Are Not Ignored
 
@@ -101,7 +102,7 @@ The good version tells the reader *what problem existed*, *what design decision 
 - **Use imperative mood** - "Add feature" not "Added feature"
 - **Use prose, not listicles** - Write body as flowing paragraphs, never use bullet points or lists
 - **Don't assume** - Ask for clarification or explore the codebase if needed
-- **Generate only** - Do not commit without user approval
+- **Auto-commit when requested** - If the user asked to commit, generate the message and run `git commit` without a separate message-approval checkpoint
 - **Ignore conversation history** - Only the final diff matters
 - **Verify files are tracked** - Check that new files aren't silently ignored
 
