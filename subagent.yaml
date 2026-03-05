@@ -71,12 +71,27 @@ models:
     systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     generationDefaults:
       thinkingBudget: xhigh
+  - ref: gpt
+    display_name: GPT 5.4
+    id: gpt-5.4
+    type: responses
+    base_url: https://aag-gateway.fly.dev/codex/
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 272000
+    max_output: 128000
+    input_cost_per_million: 1.75
+    output_cost_per_million: 14
+    cache_read_cost_per_million: 0.175
+    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
+    generationDefaults:
+      thinkingBudget: xhigh
 
 # Global defaults
 defaults:
   systemPromptPath: "$HOME/Library/Application Support/cpe/subagent_instructions.md"
-  model: codex
-  timeout: "15m"
+  model: gpt
+  timeout: "30m"
   codeMode:
     enabled: true
     excludedTools:

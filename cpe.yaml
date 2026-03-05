@@ -60,8 +60,8 @@ models:
     generationDefaults:
       temperature: 1
   - ref: gpt
-    display_name: GPT 5.2
-    id: gpt-5.2
+    display_name: GPT 5.4
+    id: gpt-5.4
     type: responses
     base_url: https://aag-gateway.fly.dev/codex/
     api_key_env: ""
@@ -73,10 +73,10 @@ models:
     cache_read_cost_per_million: 0.175
     systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     generationDefaults:
-      thinkingBudget: high
+      thinkingBudget: xhigh
   - ref: gptpro
-    display_name: GPT 5.2 Pro
-    id: gpt-5.2-pro
+    display_name: GPT 5.4 Pro
+    id: gpt-5.4-pro
     type: responses
     base_url: https://aag-gateway.fly.dev/openai/
     api_key_env: OPENAI_API_KEY
@@ -203,7 +203,7 @@ models:
           path: /reasoning/summary
 defaults:
   systemPromptPath: $HOME/Library/Application Support/cpe/agent_instructions.md
-  model: codex
+  model: gpt
   timeout: 30m
   codeMode:
     enabled: true
