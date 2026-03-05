@@ -68,7 +68,6 @@ models:
     input_cost_per_million: 1.75
     output_cost_per_million: 14
     cache_read_cost_per_million: 0.175
-    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     generationDefaults:
       thinkingBudget: xhigh
   - ref: gpt
@@ -83,7 +82,6 @@ models:
     input_cost_per_million: 1.75
     output_cost_per_million: 14
     cache_read_cost_per_million: 0.175
-    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     generationDefaults:
       thinkingBudget: xhigh
 
