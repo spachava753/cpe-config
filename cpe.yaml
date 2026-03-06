@@ -66,11 +66,11 @@ models:
     base_url: https://aag-gateway.fly.dev/codex/
     api_key_env: ""
     auth_method: oauth
-    context_window: 272000
+    context_window: 922000
     max_output: 128000
-    input_cost_per_million: 1.75
-    output_cost_per_million: 14
-    cache_read_cost_per_million: 0.175
+    input_cost_per_million: 2.50
+    output_cost_per_million: 15
+    cache_read_cost_per_million: 0.25
     systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     generationDefaults:
       thinkingBudget: xhigh
@@ -100,33 +100,6 @@ models:
     generationDefaults:
       temperature: 1
       maxGenerationTokens: 64000
-  - ref: haiku
-    display_name: Claude Haiku 4.5
-    id: claude-haiku-4-5-20251001
-    type: anthropic
-    base_url: https://aag-gateway.fly.dev/anthropic/
-    api_key_env: ""
-    auth_method: oauth
-    context_window: 200000
-    max_output: 64000
-    input_cost_per_million: 1
-    output_cost_per_million: 5
-    cache_read_cost_per_million: 0.1
-    cache_write_cost_per_million: 1.25
-    patchRequest:
-      jsonPatch:
-        - op: add
-          path: /context_management
-          value:
-            edits:
-              - keep: all
-                type: clear_thinking_20251015
-      includeHeaders:
-        anthropic-beta: interleaved-thinking-2025-05-14,context-management-2025-06-27
-    generationDefaults:
-      temperature: 1
-      maxGenerationTokens: 64000
-      thinkingBudget: "45000"
   - ref: sonnet
     display_name: Claude Sonnet 4.5
     id: claude-sonnet-4-5-20250929
@@ -167,44 +140,10 @@ models:
     generationDefaults:
       temperature: 1
       maxGenerationTokens: 64000
-  - ref: codex
-    display_name: GPT 5.3 Codex
-    id: gpt-5.3-codex
-    type: responses
-    base_url: https://aag-gateway.fly.dev/codex/
-    api_key_env: ""
-    auth_method: oauth
-    context_window: 272000
-    max_output: 128000
-    input_cost_per_million: 1.75
-    output_cost_per_million: 14
-    cache_read_cost_per_million: 0.175
-    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
-    generationDefaults:
-      thinkingBudget: xhigh
-  - ref: spark
-    display_name: GPT 5.3 Codex Spark
-    id: gpt-5.3-codex-spark
-    type: responses
-    base_url: https://aag-gateway.fly.dev/codex/
-    api_key_env: ""
-    auth_method: oauth
-    context_window: 272000
-    max_output: 128000
-    input_cost_per_million: 1.75
-    output_cost_per_million: 14
-    cache_read_cost_per_million: 0.175
-    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
-    generationDefaults:
-      thinkingBudget: xhigh
-    patchRequest:
-      jsonPatch:
-        - op: remove
-          path: /reasoning/summary
 defaults:
   systemPromptPath: $HOME/Library/Application Support/cpe/agent_instructions.md
   model: gpt
-  timeout: 30m
+  timeout: 1h
   codeMode:
     enabled: true
     maxTimeout: 3600
