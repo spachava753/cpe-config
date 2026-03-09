@@ -73,7 +73,7 @@ models:
     cache_read_cost_per_million: 0.25
     systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     generationDefaults:
-      thinkingBudget: xhigh
+      thinkingBudget: high
   - ref: gptpro
     display_name: GPT 5.4 Pro
     id: gpt-5.4-pro
@@ -152,4 +152,80 @@ defaults:
       - /Users/shashankpachava/dev/cuh
     excludedTools:
       - text_edit
+  compaction:
+    enabled: true
+    autoTriggerThreshold: 0.295010846
+    maxAutoCompactionRestarts: 5
+    toolDescription: >-
+      Compact the current conversation into a fresh linked branch when context
+      usage is high or immediately after a tool result that begins with
+      [COMPACTION WARNING]. Preserve the user's objective, completed work,
+      important findings, constraints, artifacts, open questions, and the next
+      action so you can continue seamlessly without asking the user to restate
+      prior context.
+    inputSchema:
+      type: object
+      additionalProperties: false
+      properties:
+        summary:
+          type: string
+          description: A concise but information-dense summary of the current state of the task.
+        keyPoints:
+          type: array
+          items:
+            type: string
+          description: Important findings, decisions, constraints, assumptions, or caveats to preserve.
+        completedWork:
+          type: array
+          items:
+            type: string
+          description: Meaningful work already completed, such as code changes made, analyses finished, or sources reviewed.
+        artifacts:
+          type: array
+          items:
+            type: string
+          description: Relevant files, functions, commands, URLs, datasets, or outputs that matter for resuming the task.
+        openQuestions:
+          type: array
+          items:
+            type: string
+          description: Remaining unknowns, unresolved decisions, or follow-up questions.
+        nextAction:
+          type: string
+          description: The single most important next thing to do immediately after compaction.
+      required:
+        - summary
+        - nextAction
+    initialMessageTemplate: |-
+      A conversation compaction occurred. Continue the user's request from the
+      preserved context below without asking them to repeat prior context unless
+      absolutely necessary.
+
+      Original user request:
+      {{.OriginalUserMessage}}
+
+      Compaction summary:
+      {{index .ToolInput "summary"}}
+      {{with index .ToolInput "keyPoints"}}
+
+      Key points:
+      {{range .}}- {{.}}
+      {{end}}{{end}}{{with index .ToolInput "completedWork"}}
+
+      Completed work:
+      {{range .}}- {{.}}
+      {{end}}{{end}}{{with index .ToolInput "artifacts"}}
+
+      Important artifacts:
+      {{range .}}- {{.}}
+      {{end}}{{end}}{{with index .ToolInput "openQuestions"}}
+
+      Open questions:
+      {{range .}}- {{.}}
+      {{end}}{{end}}
+
+      Immediate next action:
+      {{index .ToolInput "nextAction"}}
+
+      Resume from this state and continue the task.
 version: "1.0"

@@ -69,7 +69,7 @@ models:
     output_cost_per_million: 15
     cache_read_cost_per_million: 0.25
     generationDefaults:
-      thinkingBudget: xhigh
+      thinkingBudget: high
 
 # Global defaults
 defaults:
