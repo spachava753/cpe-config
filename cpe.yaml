@@ -74,6 +74,11 @@ models:
     systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     generationDefaults:
       thinkingBudget: high
+    patchRequest:
+      jsonPatch:
+        - op: add
+          path: /service_tier
+          value: priority
   - ref: gptpro
     display_name: GPT 5.4 Pro
     id: gpt-5.4-pro

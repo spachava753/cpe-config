@@ -70,6 +70,11 @@ models:
     cache_read_cost_per_million: 0.25
     generationDefaults:
       thinkingBudget: high
+    patchRequest:
+      jsonPatch:
+        - op: add
+          path: /service_tier
+          value: priority
 
 # Global defaults
 defaults:
