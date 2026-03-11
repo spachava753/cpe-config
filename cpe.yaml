@@ -32,6 +32,9 @@ models:
     max_output: 131072
     input_cost_per_million: 1.0
     output_cost_per_million: 3.2
+    patchRequest:
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
     generationDefaults:
       temperature: 1
   - ref: flash
@@ -44,6 +47,9 @@ models:
     max_output: 65536
     input_cost_per_million: 4
     output_cost_per_million: 18
+    patchRequest:
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
     generationDefaults:
       temperature: 1
   - ref: g3
@@ -57,8 +63,30 @@ models:
     input_cost_per_million: 4
     output_cost_per_million: 18
     systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
+    patchRequest:
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
     generationDefaults:
       temperature: 1
+  - ref: gpt54
+    display_name: GPT 5.4
+    id: gpt-5.4
+    type: responses
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 922000
+    max_output: 128000
+    input_cost_per_million: 2.50
+    output_cost_per_million: 15
+    cache_read_cost_per_million: 0.25
+    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
+    generationDefaults:
+      thinkingBudget: high
+    patchRequest:
+      jsonPatch:
+        - op: add
+          path: /service_tier
+          value: priority
   - ref: gpt
     display_name: GPT 5.4
     id: gpt-5.4
@@ -79,6 +107,8 @@ models:
         - op: add
           path: /service_tier
           value: priority
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
   - ref: gptpro
     display_name: GPT 5.4 Pro
     id: gpt-5.4-pro
@@ -89,6 +119,9 @@ models:
     max_output: 128000
     input_cost_per_million: 21.00
     output_cost_per_million: 168.00
+    patchRequest:
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
   - ref: opus
     display_name: Claude Opus 4.6
     id: claude-opus-4-6
@@ -102,6 +135,9 @@ models:
     output_cost_per_million: 25
     cache_read_cost_per_million: 0.5
     cache_write_cost_per_million: 6.25
+    patchRequest:
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
     generationDefaults:
       temperature: 1
       maxGenerationTokens: 64000
@@ -128,6 +164,7 @@ models:
                 type: clear_thinking_20251015
       includeHeaders:
         anthropic-beta: interleaved-thinking-2025-05-14,context-management-2025-06-27
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
     generationDefaults:
       temperature: 1
       maxGenerationTokens: 64000
@@ -142,6 +179,9 @@ models:
     max_output: 64000
     input_cost_per_million: 0.6
     output_cost_per_million: 3
+    patchRequest:
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
     generationDefaults:
       temperature: 1
       maxGenerationTokens: 64000
