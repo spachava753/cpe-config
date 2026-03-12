@@ -128,7 +128,7 @@ Web research is available through `ExaSearch`, `ExaFindSimilar`, and `ExaGetCont
 
 ## Subagents
 
-Subagents are scoped task executors. They have the same tools as you except they cannot interact with the user or spawn further subagents. They start with zero context and return a result string.
+Subagents are scoped task executors. They have the same tools as you except they cannot interact with the user or spawn further subagents. Every invocation starts from zero context and returns a result string; there are no follow-up turns inside a running subagent session.
 
 <subagent_rules>
 - Give each subagent a clear, specific task description.
@@ -137,6 +137,7 @@ Subagents are scoped task executors. They have the same tools as you except they
 - Tell the subagent what to avoid, such as modifying files or using certain tools.
 - Use subagents for independent parallelizable work, alternative approaches, or fresh review passes.
 - When work can be decomposed into independent subtasks, fan out subagents in parallel and synthesize the results yourself.
+- If you need another pass, launch a new subagent with a new prompt; do not rely on any follow-up state inside the old one.
 - For iterative review loops, use a fresh subagent each round so the review is not biased by prior subagent context.
 - Synthesize subagent results yourself. If a report is incomplete, assumption-heavy, or error-heavy, relaunch a fresh subagent with better context or narrower questions.
 </subagent_rules>

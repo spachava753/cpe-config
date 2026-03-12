@@ -5,7 +5,7 @@ version: "1.0"
 # This marks this config as a subagent and provides metadata for the orchestrator
 subagent:
   name: "subagent"
-  description: "A general subagent for delegated task execution. The model that powers this is an intelligent workhorse, capable of many different types of tasks. Use this for well-scoped tasks, or one-off tasks to gather information, such as for searching and summarizing, questions of third party codebases or code, Q and A across some text, etc. Also recommened to use launch multuple subagents in parallel where possible for reducing latency and finishing work faster. Capable of file operations, code editing, shell commands, and tool usage within a scoped task boundary. Uses code mode"
+  description: "A general subagent for delegated task execution. Use this for well-scoped work, one-off investigations, parallel fan-out, review passes, searching, summarization, codebase Q and A, and other bounded tasks where the main agent wants a fresh context window and a concise result back. Capable of file operations, code editing, shell commands, and tool usage within a scoped task boundary. Uses code mode."
   # outputSchemaPath: "./schemas/subagent-output.json"  # Optional: enforce structured output
 
 # MCP server definitions
@@ -36,26 +36,59 @@ models:
     max_output: 131072
     input_cost_per_million: 1.0
     output_cost_per_million: 3.2
-    generationDefaults:
-      temperature: 1
-  - ref: opus
-    display_name: "Claude Opus 4.5"
-    id: claude-opus-4-5-20251101
-    type: anthropic
-    # base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic/
-    base_url: https://aag-gateway.fly.dev/anthropic/
-    auth_method: "oauth"
-    context_window: 200000
-    max_output: 64000
-    input_cost_per_million: 5
-    output_cost_per_million: 25
-    generationDefaults:
-      temperature: 1.0
-      maxGenerationTokens: 64000
-      thinkingBudget: "45000"
     patchRequest:
       includeHeaders:
-        anthropic-beta: interleaved-thinking-2025-05-14
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+    generationDefaults:
+      temperature: 1
+  - ref: flash
+    display_name: Gemini 3 Flash Preview
+    id: models/gemini-3-flash-preview
+    type: gemini
+    base_url: https://aag-gateway.fly.dev/gemini/
+    api_key_env: GEMINI_API_KEY
+    context_window: 1048576
+    max_output: 65536
+    input_cost_per_million: 4
+    output_cost_per_million: 18
+    patchRequest:
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+    generationDefaults:
+      temperature: 1
+  - ref: g3
+    display_name: Gemini 3 Pro Preview
+    id: models/gemini-3-pro-preview
+    type: gemini
+    base_url: https://aag-gateway.fly.dev/gemini/
+    api_key_env: GEMINI_API_KEY
+    context_window: 1048576
+    max_output: 65536
+    input_cost_per_million: 4
+    output_cost_per_million: 18
+    patchRequest:
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+    generationDefaults:
+      temperature: 1
+  - ref: gpt54
+    display_name: GPT 5.4
+    id: gpt-5.4
+    type: responses
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 922000
+    max_output: 128000
+    input_cost_per_million: 2.50
+    output_cost_per_million: 15
+    cache_read_cost_per_million: 0.25
+    generationDefaults:
+      thinkingBudget: high
+    patchRequest:
+      jsonPatch:
+        - op: add
+          path: /service_tier
+          value: priority
   - ref: gpt
     display_name: GPT 5.4
     id: gpt-5.4
@@ -75,13 +108,171 @@ models:
         - op: add
           path: /service_tier
           value: priority
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+  - ref: gptpro
+    display_name: GPT 5.4 Pro
+    id: gpt-5.4-pro
+    type: responses
+    base_url: https://aag-gateway.fly.dev/openai/
+    api_key_env: OPENAI_API_KEY
+    context_window: 272000
+    max_output: 128000
+    input_cost_per_million: 21.00
+    output_cost_per_million: 168.00
+    patchRequest:
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+  - ref: opus
+    display_name: Claude Opus 4.6
+    id: claude-opus-4-6
+    type: anthropic
+    base_url: https://aag-gateway.fly.dev/anthropic/
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 200000
+    max_output: 64000
+    input_cost_per_million: 5
+    output_cost_per_million: 25
+    cache_read_cost_per_million: 0.5
+    cache_write_cost_per_million: 6.25
+    patchRequest:
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+    generationDefaults:
+      temperature: 1
+      maxGenerationTokens: 64000
+  - ref: sonnet
+    display_name: Claude Sonnet 4.5
+    id: claude-sonnet-4-5-20250929
+    type: anthropic
+    base_url: https://aag-gateway.fly.dev/anthropic/
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 1000000
+    max_output: 64000
+    input_cost_per_million: 3
+    output_cost_per_million: 15
+    cache_read_cost_per_million: 0.3
+    cache_write_cost_per_million: 3.75
+    patchRequest:
+      jsonPatch:
+        - op: add
+          path: /context_management
+          value:
+            edits:
+              - keep: all
+                type: clear_thinking_20251015
+      includeHeaders:
+        anthropic-beta: interleaved-thinking-2025-05-14,context-management-2025-06-27
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+    generationDefaults:
+      temperature: 1
+      maxGenerationTokens: 64000
+      thinkingBudget: "45000"
+  - ref: kimi
+    display_name: Kimi K2.5
+    id: kimi-k2.5
+    type: anthropic
+    base_url: https://aag-gateway.fly.dev/moonshot-anthropic/
+    api_key_env: "MOONSHOT_API_KEY"
+    context_window: 256000
+    max_output: 64000
+    input_cost_per_million: 0.6
+    output_cost_per_million: 3
+    patchRequest:
+      includeHeaders:
+        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+    generationDefaults:
+      temperature: 1
+      maxGenerationTokens: 64000
 
 # Global defaults
 defaults:
-  systemPromptPath: "$HOME/Library/Application Support/cpe/subagent_instructions.md"
+  systemPromptPath: $HOME/Library/Application Support/cpe/subagent_instructions.md
   model: gpt
-  timeout: "1h"
+  timeout: 1h
   codeMode:
     enabled: true
+    maxTimeout: 3600
+    largeOutputCharLimit: 150000
+    localModulePaths:
+      - /Users/shashankpachava/dev/cuh
     excludedTools:
       - text_edit
+  compaction:
+    enabled: true
+    autoTriggerThreshold: 0.295010846
+    maxAutoCompactionRestarts: 5
+    toolDescription: >-
+      Compact the current subagent conversation into a fresh linked branch when
+      context usage is high or immediately after a tool result that begins with
+      [COMPACTION WARNING]. Preserve the delegated objective, completed work,
+      important findings, constraints, artifacts, open questions, and the next
+      action so execution can continue without losing task state.
+    inputSchema:
+      type: object
+      additionalProperties: false
+      properties:
+        summary:
+          type: string
+          description: A concise but information-dense summary of the current state of the task.
+        keyPoints:
+          type: array
+          items:
+            type: string
+          description: Important findings, decisions, constraints, assumptions, or caveats to preserve.
+        completedWork:
+          type: array
+          items:
+            type: string
+          description: Meaningful work already completed, such as code changes made, analyses finished, or sources reviewed.
+        artifacts:
+          type: array
+          items:
+            type: string
+          description: Relevant files, functions, commands, URLs, datasets, or outputs that matter for resuming the task.
+        openQuestions:
+          type: array
+          items:
+            type: string
+          description: Remaining unknowns, unresolved decisions, or follow-up questions.
+        nextAction:
+          type: string
+          description: The single most important next thing to do immediately after compaction.
+      required:
+        - summary
+        - nextAction
+    initialMessageTemplate: |-
+      A subagent conversation compaction occurred. Continue the delegated task
+      from the preserved context below without asking for prior context to be
+      repeated unless absolutely necessary.
+
+      Original delegated prompt:
+      {{.OriginalUserMessage}}
+
+      Compaction summary:
+      {{index .ToolInput "summary"}}
+      {{with index .ToolInput "keyPoints"}}
+
+      Key points:
+      {{range .}}- {{.}}
+      {{end}}{{end}}{{with index .ToolInput "completedWork"}}
+
+      Completed work:
+      {{range .}}- {{.}}
+      {{end}}{{end}}{{with index .ToolInput "artifacts"}}
+
+      Important artifacts:
+      {{range .}}- {{.}}
+      {{end}}{{end}}{{with index .ToolInput "openQuestions"}}
+
+      Open questions:
+      {{range .}}- {{.}}
+      {{end}}{{end}}
+
+      Immediate next action:
+      {{index .ToolInput "nextAction"}}
+
+      Resume from this state and continue the delegated task for the
+      orchestrator.
