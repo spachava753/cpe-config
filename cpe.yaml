@@ -111,7 +111,7 @@ models:
     api_key_env: ""
     auth_method: oauth
     context_window: 1000000
-    max_output: 64000
+    max_output: 128000
     input_cost_per_million: 5
     output_cost_per_million: 25
     cache_read_cost_per_million: 0.5
@@ -121,10 +121,10 @@ models:
         X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
     generationDefaults:
       temperature: 1
-      maxGenerationTokens: 64000
+      maxGenerationTokens: 128000
   - ref: sonnet
-    display_name: Claude Sonnet 4.5
-    id: claude-sonnet-4-5-20250929
+    display_name: Claude Sonnet 4.6
+    id: claude-sonnet-4-6
     type: anthropic
     base_url: https://aag-gateway.fly.dev/anthropic/
     api_key_env: ""
@@ -149,7 +149,6 @@ models:
     generationDefaults:
       temperature: 1
       maxGenerationTokens: 64000
-      thinkingBudget: "45000"
   - ref: kimi
     display_name: Kimi K2.5
     id: kimi-k2.5

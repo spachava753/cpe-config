@@ -202,7 +202,7 @@ defaults:
       - text_edit
   compaction:
     enabled: true
-    autoTriggerThreshold: 0.295010846
+    autoTriggerThreshold: 0.85
     maxAutoCompactionRestarts: 5
     toolDescription: >-
       Compact the current subagent conversation into a fresh linked branch when
