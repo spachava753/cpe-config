@@ -130,7 +130,7 @@ models:
     base_url: https://aag-gateway.fly.dev/anthropic/
     api_key_env: ""
     auth_method: oauth
-    context_window: 200000
+    context_window: 1000000
     max_output: 64000
     input_cost_per_million: 5
     output_cost_per_million: 25
@@ -190,7 +190,7 @@ models:
 # Global defaults
 defaults:
   systemPromptPath: $HOME/Library/Application Support/cpe/subagent_instructions.md
-  model: gpt
+  model: opus
   timeout: 1h
   codeMode:
     enabled: true

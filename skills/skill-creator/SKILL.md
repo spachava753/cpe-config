@@ -110,6 +110,34 @@ For design patterns, see:
 - Use imperative/infinitive form
 - Include WHEN to use in description (not body)
 - Keep body focused on HOW to execute
+- When relevant, include an optional `## Execution Posture` section describing how the agent should balance speed, batching, verification, and interaction during use of the skill
+- If the skill needs different behavior in different phases, define phase-specific execution posture within that section
+- If a skill does not define an execution posture, the agent will follow the general default execution posture from the system instructions
+- Use an execution posture section only when the skill genuinely needs behavior that is more specific or more conservative than the default
+
+#### Optional Execution Posture Section
+
+Use this section when a skill needs to override the general default execution posture for all or part of a task.
+
+Recommended pattern:
+
+```md
+## Execution Posture
+
+Describe the default posture for this skill.
+
+Phase-specific posture:
+- Setup phase: describe how aggressively or conservatively to move.
+- Main execution phase: describe batching, verification cadence, and tool-call granularity.
+- Handoff/review/sensitive phase: describe any slower or more careful workflow requirements.
+- Finalization phase: describe validation and output expectations.
+```
+
+Guidance:
+- Be explicit about scope. State whether the posture applies to the whole skill or only to specific phases.
+- Prefer short, operational language over abstract principles.
+- Explain what should not be optimized away, such as screenshot verification, review passes, or human handoff boundaries.
+- Do not add this section to every skill by default; add it when the skill needs execution semantics that differ materially from the general default.
 
 ### Step 5: Packaging
 

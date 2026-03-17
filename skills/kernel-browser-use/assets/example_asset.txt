@@ -1,0 +1,1 @@
+This skill does not require bundled assets. Keep this directory only if you later add reusable templates or artifacts for Kernel browser workflows.
