@@ -1,11 +1,16 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/spachava753/cpe/refs/heads/main/schema/cpe-config-schema.json
 mcpServers:
+  editor:
+    command: editor-mcp
+    args: []
+    type: stdio
+    enabledTools:
+      - text_edit
   exa:
     command: exa-mcp
     args: []
     type: stdio
     env:
-      EXA_API_KEY: "${EXA_API_KEY}"
+      EXA_API_KEY: ${EXA_API_KEY}
     disabledTools:
       - exa_answer
   general:
@@ -16,25 +21,20 @@ mcpServers:
       - mcp
       - serve
     type: stdio
-  editor:
-    type: stdio
-    command: editor-mcp
-    enabledTools:
-      - text_edit
 models:
   - ref: glm
-    display_name: GLM 5
-    id: glm-5
+    display_name: GLM 5.1
+    id: glm-5.1
     type: zai
     base_url: https://aag-gateway.fly.dev/zai-coding/
     api_key_env: Z_API_KEY
     context_window: 202752
     max_output: 131072
-    input_cost_per_million: 1.0
+    input_cost_per_million: 1
     output_cost_per_million: 3.2
     patchRequest:
       includeHeaders:
-        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+        X-AAG-Token: ${AAG_GATEWAY_TOKEN}
     generationDefaults:
       temperature: 1
   - ref: flash
@@ -49,7 +49,7 @@ models:
     output_cost_per_million: 18
     patchRequest:
       includeHeaders:
-        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+        X-AAG-Token: ${AAG_GATEWAY_TOKEN}
     generationDefaults:
       temperature: 1
   - ref: g3
@@ -62,10 +62,10 @@ models:
     max_output: 65536
     input_cost_per_million: 4
     output_cost_per_million: 18
-    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     patchRequest:
       includeHeaders:
-        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+        X-AAG-Token: ${AAG_GATEWAY_TOKEN}
+    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     generationDefaults:
       temperature: 1
   - ref: gpt
@@ -77,19 +77,19 @@ models:
     auth_method: oauth
     context_window: 300000
     max_output: 128000
-    input_cost_per_million: 2.50
+    input_cost_per_million: 2.5
     output_cost_per_million: 15
     cache_read_cost_per_million: 0.25
-    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
-    generationDefaults:
-      thinkingBudget: high
     patchRequest:
       jsonPatch:
         - op: add
           path: /service_tier
           value: priority
       includeHeaders:
-        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+        X-AAG-Token: ${AAG_GATEWAY_TOKEN}
+    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
+    generationDefaults:
+      thinkingBudget: high
   - ref: gptpro
     display_name: GPT 5.4 Pro
     id: gpt-5.4-pro
@@ -98,11 +98,11 @@ models:
     api_key_env: OPENAI_API_KEY
     context_window: 272000
     max_output: 128000
-    input_cost_per_million: 21.00
-    output_cost_per_million: 168.00
+    input_cost_per_million: 21
+    output_cost_per_million: 168
     patchRequest:
       includeHeaders:
-        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+        X-AAG-Token: ${AAG_GATEWAY_TOKEN}
   - ref: opus
     display_name: Claude Opus 4.6
     id: claude-opus-4-6
@@ -118,7 +118,7 @@ models:
     cache_write_cost_per_million: 6.25
     patchRequest:
       includeHeaders:
-        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
+        X-AAG-Token: ${AAG_GATEWAY_TOKEN}
     generationDefaults:
       temperature: 1
       maxGenerationTokens: 128000
@@ -144,24 +144,8 @@ models:
               - keep: all
                 type: clear_thinking_20251015
       includeHeaders:
+        X-AAG-Token: ${AAG_GATEWAY_TOKEN}
         anthropic-beta: interleaved-thinking-2025-05-14,context-management-2025-06-27
-        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
-    generationDefaults:
-      temperature: 1
-      maxGenerationTokens: 64000
-  - ref: kimi
-    display_name: Kimi K2.5
-    id: kimi-k2.5
-    type: anthropic
-    base_url: https://aag-gateway.fly.dev/moonshot-anthropic/
-    api_key_env: "MOONSHOT_API_KEY"
-    context_window: 256000
-    max_output: 64000
-    input_cost_per_million: 0.6
-    output_cost_per_million: 3
-    patchRequest:
-      includeHeaders:
-        X-AAG-Token: "${AAG_GATEWAY_TOKEN}"
     generationDefaults:
       temperature: 1
       maxGenerationTokens: 64000
@@ -171,56 +155,50 @@ defaults:
   timeout: 1h
   codeMode:
     enabled: true
-    maxTimeout: 3600
-    largeOutputCharLimit: 150000
-    localModulePaths:
-      - /Users/shashankpachava/dev/cuh
     excludedTools:
       - text_edit
+    localModulePaths:
+      - /Users/shashankpachava/dev/cuh
+    maxTimeout: 3600
+    largeOutputCharLimit: 150000
   compaction:
     enabled: true
     autoTriggerThreshold: 0.85
-    maxAutoCompactionRestarts: 5
-    toolDescription: >-
-      Compact the current conversation into a fresh linked branch when context
-      usage is high or immediately after a tool result that begins with
-      [COMPACTION WARNING]. Preserve the user's objective, completed work,
-      important findings, constraints, artifacts, open questions, and the next
-      action so you can continue seamlessly without asking the user to restate
-      prior context.
+    maxAutoCompactionRestarts: 10
+    toolDescription: Compact the current conversation into a fresh linked branch when context usage is high or immediately after a tool result that begins with [COMPACTION WARNING]. Preserve the user's objective, completed work, important findings, constraints, artifacts, open questions, and the next action so you can continue seamlessly without asking the user to restate prior context.
     inputSchema:
-      type: object
       additionalProperties: false
       properties:
-        summary:
-          type: string
-          description: A concise but information-dense summary of the current state of the task.
-        keyPoints:
-          type: array
-          items:
-            type: string
-          description: Important findings, decisions, constraints, assumptions, or caveats to preserve.
-        completedWork:
-          type: array
-          items:
-            type: string
-          description: Meaningful work already completed, such as code changes made, analyses finished, or sources reviewed.
         artifacts:
-          type: array
-          items:
-            type: string
           description: Relevant files, functions, commands, URLs, datasets, or outputs that matter for resuming the task.
-        openQuestions:
-          type: array
           items:
             type: string
-          description: Remaining unknowns, unresolved decisions, or follow-up questions.
+          type: array
+        completedWork:
+          description: Meaningful work already completed, such as code changes made, analyses finished, or sources reviewed.
+          items:
+            type: string
+          type: array
+        keyPoints:
+          description: Important findings, decisions, constraints, assumptions, or caveats to preserve.
+          items:
+            type: string
+          type: array
         nextAction:
-          type: string
           description: The single most important next thing to do immediately after compaction.
+          type: string
+        openQuestions:
+          description: Remaining unknowns, unresolved decisions, or follow-up questions.
+          items:
+            type: string
+          type: array
+        summary:
+          description: A concise but information-dense summary of the current state of the task.
+          type: string
       required:
         - summary
         - nextAction
+      type: object
     initialMessageTemplate: |-
       A conversation compaction occurred. Continue the user's request from the
       preserved context below without asking them to repeat prior context unless

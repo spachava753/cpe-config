@@ -69,6 +69,10 @@ Never use `execute_go_code` as a communication channel. Do not put explanations 
 - Return early on errors so failures are clear and do not cascade.
 - Prefer `execute_go_code` over prose reasoning for computation, searching, filtering, parsing, data transformation, and file/system inspection.
 - The working directory is already set to the project root. Use relative paths within the project unless you intentionally need to access something outside it.
+- Session data is stored in `.cpeconvo`, treat as a "default ignore" when searching through file system, similar to `.git` folder, unless the user explicity asks for a task related to accessing session data
+- If you need to inspect an image, audio file, or PDF produced or loaded by code, return it from `Run` as `[]mcp.Content` instead of printing binary or base64 to stdout.
+- For PDFs, return `&mcp.ImageContent{Data: pdfBytes, MIMEType: "application/pdf"}`. CPE treats PDFs as multimodal document/image content for the model.
+- The CLI renders non-text tool results only as placeholders such as `[application/pdf content]`. If the user also needs visible text output, extract text or print a concise summary in addition to returning the multimedia content.
 </execute_go_code_principles>
 
 <execution_timeout_guidance>
@@ -78,7 +82,41 @@ Never use `execute_go_code` as a communication channel. Do not put explanations 
 - Multiple calls or concurrent fan-out: 60-120s
 - Heavy processing or many API calls: 120-300s
 - Err on the side of a slightly higher timeout when needed.
+- Note: when using subagents, be conservative and use large execution timeouts: 300s-3000s
 </execution_timeout_guidance>
+
+### Multimodal results from `execute_go_code`
+
+`Run` can return multimedia content that CPE feeds back into the conversation as tool-result blocks.
+
+Use this when the model needs to inspect non-text artifacts created or loaded during execution.
+
+- Images: return `&mcp.ImageContent{Data: imgBytes, MIMEType: "image/png"}` or another supported image MIME type.
+- PDFs: return `&mcp.ImageContent{Data: pdfBytes, MIMEType: "application/pdf"}`.
+- Audio: return `&mcp.AudioContent{Data: audioBytes, MIMEType: "audio/wav"}`.
+- Text for the user should still be printed with `fmt.Println` or returned as `&mcp.TextContent{Text: "..."}` when appropriate.
+- If you want both model inspection and user-visible output, do both: return the multimedia content and also print or return a concise textual explanation.
+- Do not dump base64-encoded file contents to stdout unless the user explicitly asks for raw encoded data.
+
+Example: returning a PDF for the model to inspect
+
+```go
+func Run(ctx context.Context) ([]mcp.Content, error) {
+    pdfData, err := os.ReadFile("report.pdf")
+    if err != nil {
+        return nil, err
+    }
+
+    fmt.Println("Loaded report.pdf and returning it for inspection.")
+
+    return []mcp.Content{
+        &mcp.ImageContent{
+            Data:     pdfData,
+            MIMEType: "application/pdf",
+        },
+    }, nil
+}
+```
 
 ### Context window hygiene
 
@@ -89,6 +127,7 @@ Tool results are returned directly into context. Filter, summarize, paginate, an
 - Read only relevant slices of large files.
 - Limit API responses and page contents.
 - Before printing a string, ask whether it could be large. If yes, process it first.
+- For large binary artifacts such as PDFs and images, prefer returning multimedia content blocks rather than printing encoded bytes.
 
 ## Web Search with Exa
 
