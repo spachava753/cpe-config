@@ -100,6 +100,7 @@ models:
     max_output: 128000
     input_cost_per_million: 21
     output_cost_per_million: 168
+    systemPromptPath: $HOME/Library/Application Support/cpe/gpt_agent_instructions.md
     patchRequest:
       includeHeaders:
         X-AAG-Token: ${AAG_GATEWAY_TOKEN}
