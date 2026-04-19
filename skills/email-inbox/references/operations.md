@@ -2,6 +2,9 @@
 
 Complete code examples for Gmail thread management using go-imap v1.
 
+For Gmail-specific extensions and altered behavior, see `gmail-extensions.md`.
+For thread-aware reply flows, see `replying.md`.
+
 ## Setup
 
 ```go
@@ -151,6 +154,8 @@ func SearchThreads(c *client.Client, query string) ([]uint32, error) {
 // SearchThreads(c, "has:attachment larger:5M")
 // SearchThreads(c, "after:2024/01/01 subject:invoice")
 ```
+
+If a narrow `X-GM-RAW` query unexpectedly returns zero, retry with a broader sender/date query and filter locally. Gmail IMAP search is powerful, but exact combinations can be brittle.
 
 ## 3. Get Thread Contents
 

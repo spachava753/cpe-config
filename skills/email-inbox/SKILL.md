@@ -33,8 +33,10 @@ Use when the user asks to:
 ## Reference Documentation
 
 - **[Gmail Mailbox Structure](./references/gmail-mailboxes.md)** - Understanding Gmail's IMAP folder structure and when to use each mailbox
+- **[Gmail IMAP Extensions and Behavior](./references/gmail-extensions.md)** - Gmail-specific additions to normal IMAP, including `X-GM-RAW`, `X-GM-MSGID`, `X-GM-THRID`, `X-GM-LABELS`, special-use mailboxes, and search caveats
 - **[Common Email Queries](./references/common-queries.md)** - Practical examples for frequently requested operations (starred, unread, date ranges, pagination, etc.)
 - **[Thread Operations](./references/operations.md)** - Complete code examples for Gmail thread management
+- **[Replying in an Existing Gmail Thread](./references/replying.md)** - End-to-end guidance for finding a Gmail conversation via IMAP and sending a properly threaded SMTP reply
 - **[Sending Email](./references/sending.md)** - Complete code examples for sending emails via SMTP
 
 ## Operations
@@ -96,12 +98,13 @@ Combine queries: `is:unread from:github has:attachment`
 
 **IMAP (Reading):**
 - Uses `github.com/emersion/go-imap` v1.2.1 (not v2)
-- Gmail extensions: X-GM-THRID (thread ID), X-GM-LABELS (labels), X-GM-RAW (search)
-- Select `[Gmail]/All Mail` for comprehensive operations
-- Thread ID is a 64-bit integer unique to each conversation
+- Gmail supports normal IMAP operations plus Gmail-specific extensions advertised by `X-GM-EXT-1`
+- Key Gmail extensions: `X-GM-RAW` (search), `X-GM-MSGID` (stable message ID), `X-GM-THRID` (stable thread ID), `X-GM-LABELS` (labels)
+- Prefer special-use mailboxes and `[Gmail]/All Mail` for comprehensive searches and thread work
+- For narrow `X-GM-RAW` queries that unexpectedly return zero, retry with a broader sender/date query and filter locally
 
 **SMTP (Sending):**
 - Uses `github.com/emersion/go-smtp` + `github.com/emersion/go-sasl`
 - Uses TLS on port 465 (direct SSL connection)
 - Build RFC 5322 compliant messages manually
-- Use `In-Reply-To` and `References` headers for replies
+- For replies, find the target message via IMAP first, then set both `In-Reply-To` and an appended `References` chain

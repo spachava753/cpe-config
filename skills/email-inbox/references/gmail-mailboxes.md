@@ -2,6 +2,8 @@
 
 Gmail uses a special IMAP folder structure. Understanding these mailboxes is essential for effective email operations.
 
+Gmail also returns special-use mailbox attributes in normal `LIST` responses. Prefer those standard special-use attributes over legacy `XLIST`, which Gmail deprecated.
+
 ## Standard Gmail Mailboxes
 
 | Mailbox Path | Description | Use Case |

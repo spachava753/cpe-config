@@ -1,5 +1,7 @@
 # Gmail IMAP API Reference
 
+Gmail supports normal IMAP operations. This file focuses on the Gmail-specific extensions exposed through IMAP. For behavior notes and practical caveats, also see `gmail-extensions.md`.
+
 ## go-imap v1 Gmail Extensions
 
 This reference shows how to use Gmail IMAP extensions with `github.com/emersion/go-imap` v1.

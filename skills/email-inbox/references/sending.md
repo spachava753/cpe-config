@@ -2,6 +2,8 @@
 
 Complete code examples for sending emails via Gmail SMTP using `emersion/go-smtp` and `emersion/go-sasl`.
 
+For end-to-end thread-aware replies that start with IMAP discovery and then send over SMTP, see `replying.md`.
+
 ## Setup
 
 ```go
@@ -325,15 +327,17 @@ func buildMultipartMessage(from, to, subject, body string, attachments []string)
 
 Reply to an existing email (In-Reply-To and References headers).
 
+This section shows the SMTP half only. For a reliable Gmail reply in an existing conversation, first fetch the target message's `Message-ID` and existing `References` over IMAP, then append that chain when building the outgoing message. See `replying.md`.
+
 ```go
-func SendReply(from, to, subject, body, originalMessageID string, appPassword string) error {
+func SendReply(from, to, subject, body, originalMessageID, existingReferences string, appPassword string) error {
 	c, err := ConnectSMTP(from, appPassword)
 	if err != nil {
 		return err
 	}
 	defer c.Close()
 
-	msg := buildReplyMessage(from, to, subject, body, originalMessageID)
+	msg := buildReplyMessage(from, to, subject, body, originalMessageID, existingReferences)
 
 	if err := c.Mail(from, nil); err != nil {
 		return err
@@ -358,13 +362,16 @@ func SendReply(from, to, subject, body, originalMessageID string, appPassword st
 	return c.Quit()
 }
 
-func buildReplyMessage(from, to, subject, body, originalMsgID string) string {
+func buildReplyMessage(from, to, subject, body, originalMsgID, existingReferences string) string {
 	msgID := fmt.Sprintf("<%d.%s>", time.Now().UnixNano(), from)
 
 	// Ensure subject has "Re:" prefix
 	if !strings.HasPrefix(strings.ToLower(subject), "re:") {
 		subject = "Re: " + subject
 	}
+
+	references := strings.TrimSpace(strings.TrimSpace(existingReferences + " " + originalMsgID))
+	references = strings.Join(strings.Fields(references), " ")
 
 	headers := []string{
 		fmt.Sprintf("From: %s", from),
@@ -373,7 +380,7 @@ func buildReplyMessage(from, to, subject, body, originalMsgID string) string {
 		fmt.Sprintf("Date: %s", time.Now().Format(time.RFC1123Z)),
 		fmt.Sprintf("Message-ID: %s", msgID),
 		fmt.Sprintf("In-Reply-To: %s", originalMsgID),
-		fmt.Sprintf("References: %s", originalMsgID),
+		fmt.Sprintf("References: %s", references),
 		"MIME-Version: 1.0",
 		"Content-Type: text/plain; charset=UTF-8",
 	}
@@ -442,6 +449,7 @@ func main() {
 | `auth failed` | Check app password (no spaces), ensure 2FA is enabled |
 | `connection refused` | Check firewall, try port 465 with TLS |
 | `certificate error` | Ensure correct ServerName in TLS config |
+| `assignment mismatch` or `too many arguments` around `smtp.NewClient` | You may be mixing `emersion/go-smtp` with `net/smtp` APIs; in `emersion/go-smtp`, `smtp.NewClient` takes only the connection |
 | `too many login attempts` | Wait and retry, check for account security alerts |
 
 ## Dependencies
