@@ -13,14 +13,6 @@ mcpServers:
       EXA_API_KEY: ${EXA_API_KEY}
     disabledTools:
       - exa_answer
-  general:
-    command: cpe
-    args:
-      - --config
-      - $HOME/Library/Application Support/cpe/subagent.yaml
-      - mcp
-      - serve
-    type: stdio
 models:
   - ref: glm
     display_name: GLM 5.1
@@ -128,31 +120,35 @@ defaults:
       preserved context below without asking them to repeat prior context unless
       absolutely necessary.
 
-      Original user request:
-      {{.OriginalUserMessage}}
+      Original conversation root message:
+      {{with index .Dialog 0}}{{range .Blocks}}{{.Content}}
+      {{end}}{{end}}
 
       Compaction summary:
-      {{index .ToolInput "summary"}}
-      {{with index .ToolInput "keyPoints"}}
+      {{index .ToolArguments "summary"}}
+      {{with index .ToolArguments "keyPoints"}}
 
       Key points:
       {{range .}}- {{.}}
-      {{end}}{{end}}{{with index .ToolInput "completedWork"}}
+      {{end}}{{end}}{{with index .ToolArguments "completedWork"}}
 
       Completed work:
       {{range .}}- {{.}}
-      {{end}}{{end}}{{with index .ToolInput "artifacts"}}
+      {{end}}{{end}}{{with index .ToolArguments "artifacts"}}
 
       Important artifacts:
       {{range .}}- {{.}}
-      {{end}}{{end}}{{with index .ToolInput "openQuestions"}}
+      {{end}}{{end}}{{with index .ToolArguments "openQuestions"}}
 
       Open questions:
       {{range .}}- {{.}}
       {{end}}{{end}}
 
       Immediate next action:
-      {{index .ToolInput "nextAction"}}
+      {{index .ToolArguments "nextAction"}}
+
+      Raw compaction payload JSON:
+      {{.ToolArgumentsJSON}}
 
       Resume from this state and continue the task.
 version: "1.0"
