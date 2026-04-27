@@ -4,8 +4,7 @@ This repository is a [CPE](https://github.com/spachava753/cpe) agent configurati
 
 ## Component Index
 
-- `cpe.yaml` - Main CPE config (models, defaults, pricing metadata, provider settings).
-- `subagent.yaml` - Subagent runtime config
+- `cpe.yaml` - Main CPE config (complete per-model runtime profiles, pricing metadata, provider settings).
 - `*_instructions.md` - Golang template instructions for CPE and subagents formatted as markdown.
 - `skills/` - Skill library; each skill lives in `skills/<name>/SKILL.md`.
 - `auth.json` - Local auth/config state (treat as sensitive).
