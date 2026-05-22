@@ -119,6 +119,24 @@ models:
         type: object
       maxAutoCompactionRestarts: 10
       toolDescription: Compact the current conversation into a fresh linked branch when context usage is high or immediately after a tool result that begins with [COMPACTION WARNING]. Preserve the user's objective, completed work, important findings, constraints, artifacts, open questions, and the next action so you can continue seamlessly without asking the user to restate prior context.
+  - ref: gptmini
+    display_name: GPT 5.4 Mini
+    id: gpt-5.4-mini
+    type: responses
+    base_url: https://aag-gateway.fly.dev/codex/
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 272000
+    max_output: 128000
+    input_cost_per_million: 21
+    output_cost_per_million: 168
+    patchRequest:
+      includeHeaders: *aagHeaders
+    systemPromptPath: *gptPrompt
+    timeout: *standardTimeout
+    mcpServers: *standardMCPServers
+    codeMode: *standardCodeMode
+    compaction: *standardCompaction
   - ref: gptpro
     display_name: GPT 5.5 Pro
     id: gpt-5.5-pro
@@ -136,3 +154,31 @@ models:
     mcpServers: *standardMCPServers
     codeMode: *standardCodeMode
     compaction: *standardCompaction
+  - ref: ds
+    display_name: DeepSeek V4 Pro
+    id: deepseek-v4-pro
+    type: anthropic
+    base_url: https://api.deepseek.com/anthropic
+    api_key_env: DEEPSEEK_API_KEY
+    context_window: 1000000
+    max_output: 393216
+    input_cost_per_million: 0.435
+    output_cost_per_million: 0.87
+    cache_read_cost_per_million: 0.003625
+    patchRequest:
+      jsonPatch:
+        - op: add
+          path: /thinking
+          value:
+            type: "enabled"
+        - op: add
+          path: /output_config
+          value:
+            effort: "max"
+    systemPromptPath: *gptPrompt
+    timeout: *standardTimeout
+    mcpServers: *standardMCPServers
+    codeMode: *standardCodeMode
+    compaction: *standardCompaction
+    generationParams:
+      maxGenerationTokens: 393216
