@@ -23,7 +23,7 @@ models:
         - op: add
           path: /parallel_tool_calls
           value: false
-    systemPromptPath: &gptPrompt $HOME/Library/Application Support/cpe/agent_instructions.md
+    systemPromptPath: &gptPrompt $HOME/Library/Application Support/cpe/gpt_instructions.md
     timeout: &standardTimeout 1h
     generationParams:
       thinkingBudget: high
@@ -175,7 +175,7 @@ models:
           path: /output_config
           value:
             effort: "max"
-    systemPromptPath: *gptPrompt
+    systemPromptPath: &deepseekPrompt $HOME/Library/Application Support/cpe/deepseek_instructions.md
     timeout: *standardTimeout
     mcpServers: *standardMCPServers
     codeMode: *standardCodeMode
