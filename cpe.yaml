@@ -13,6 +13,19 @@ models:
     input_cost_per_million: 5
     output_cost_per_million: 30
     cache_read_cost_per_million: 0.5
+    thinkingValues: &openAIThinkingValues
+      - value: none
+        name: None
+      - value: minimal
+        name: Minimal
+      - value: low
+        name: Low
+      - value: medium
+        name: Medium
+      - value: high
+        name: High
+      - value: xhigh
+        name: Extra High
     patchRequest:
       includeHeaders: &aagHeaders
         X-AAG-Token: ${AAG_GATEWAY_TOKEN}
@@ -130,6 +143,7 @@ models:
     max_output: 128000
     input_cost_per_million: 21
     output_cost_per_million: 168
+    thinkingValues: *openAIThinkingValues
     patchRequest:
       includeHeaders: *aagHeaders
     systemPromptPath: *gptPrompt
@@ -137,6 +151,8 @@ models:
     mcpServers: *standardMCPServers
     codeMode: *standardCodeMode
     compaction: *standardCompaction
+    generationParams:
+      thinkingBudget: "high"
   - ref: gptpro
     display_name: GPT 5.5 Pro
     id: gpt-5.5-pro
@@ -147,6 +163,7 @@ models:
     max_output: 128000
     input_cost_per_million: 21
     output_cost_per_million: 168
+    thinkingValues: *openAIThinkingValues
     patchRequest:
       includeHeaders: *aagHeaders
     systemPromptPath: *gptPrompt
