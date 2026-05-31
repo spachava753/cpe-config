@@ -211,7 +211,7 @@ Skills are reusable capabilities bundled as directories with a `SKILL.md` file c
 
 ## Available skills
 
-{{- $skills := skills "./skills" "~/Library/Application Support/cpe/skills" -}}
+{{- $skills := skills "./skills" "~/.agents/skills" -}}
 {{- if $skills }}
 {{- range $skill := $skills }}
 

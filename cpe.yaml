@@ -157,15 +157,13 @@ models:
     display_name: GPT 5.5 Pro
     id: gpt-5.5-pro
     type: responses
-    base_url: https://aag-gateway.fly.dev/openai/
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/openai
     api_key_env: OPENAI_API_KEY
     context_window: 272000
     max_output: 128000
     input_cost_per_million: 21
     output_cost_per_million: 168
     thinkingValues: *openAIThinkingValues
-    patchRequest:
-      includeHeaders: *aagHeaders
     systemPromptPath: *gptPrompt
     timeout: *standardTimeout
     mcpServers: *standardMCPServers
@@ -175,23 +173,26 @@ models:
     display_name: DeepSeek V4 Pro
     id: deepseek-v4-pro
     type: anthropic
-    base_url: https://api.deepseek.com/anthropic
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/custom-deepseek-anthropic/anthropic
     api_key_env: DEEPSEEK_API_KEY
     context_window: 1000000
     max_output: 393216
     input_cost_per_million: 0.435
     output_cost_per_million: 0.87
     cache_read_cost_per_million: 0.003625
+    thinkingValues: &deepseekThinkingValues
+      - value: high
+        name: High
+      - value: max
+        name: Max
     patchRequest:
       jsonPatch:
+        - op: replace
+          path: /thinking/type
+          value: enabled
         - op: add
-          path: /thinking
-          value:
-            type: "enabled"
-        - op: add
-          path: /output_config
-          value:
-            effort: "max"
+          path: /max_tokens
+          value: 393216
     systemPromptPath: &deepseekPrompt $HOME/Library/Application Support/cpe/deepseek_instructions.md
     timeout: *standardTimeout
     mcpServers: *standardMCPServers
@@ -199,3 +200,4 @@ models:
     compaction: *standardCompaction
     generationParams:
       maxGenerationTokens: 393216
+      thinkingBudget: max
