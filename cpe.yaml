@@ -41,10 +41,6 @@ models:
     generationParams:
       thinkingBudget: high
     mcpServers: &standardMCPServers
-      editor:
-        enabledTools:
-          - text_edit
-        type: builtin
       parallel:
         type: http
         url: https://search.parallel.ai/mcp
@@ -53,9 +49,6 @@ models:
         timeout: 300
     codeMode: &standardCodeMode
       enabled: true
-      excludedTools:
-        - web_search
-        - web_fetch
       largeOutputCharLimit: 150000
       localModulePaths:
         - /Users/shashankpachava/dev/cuh
