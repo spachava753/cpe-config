@@ -170,13 +170,72 @@ models:
         - op: replace
           path: /thinking/type
           value: enabled
-        - op: add
-          path: /max_tokens
-          value: 393216
-    systemPromptPath: &deepseekPrompt $HOME/Library/Application Support/cpe/agent_instructions.md
+    systemPromptPath: &agentPrompt $HOME/Library/Application Support/cpe/agent_instructions.md
     timeout: *standardTimeout
     codeMode: *standardCodeMode
     compaction: *standardCompaction
     generationParams:
       maxGenerationTokens: 393216
-      thinkingBudget: max
+  - ref: opus
+    display_name: Claude Opus 4.8
+    id: claude-opus-4-8
+    type: anthropic
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic
+    api_key_env: ANTHROPIC_API_KEY
+    context_window: 1000000
+    max_output: 128000
+    input_cost_per_million: 5.00
+    output_cost_per_million: 25.00
+    cache_read_cost_per_million: 6.25
+    cache_write_cost_per_million: 0.50
+    thinkingValues: &claudeThinkingValues
+      - value: disabled
+        name: Disabled
+      - value: adaptive
+        name: Adaptive
+      - value: low
+        name: Low
+      - value: medium
+        name: Medium
+      - value: high
+        name: High
+      - value: xhigh
+        name: Extra High
+      - value: max
+        name: Max
+    patchRequest:
+      jsonPatch:
+        - op: add
+          path: /cache_control
+          value:
+            type: "ephemeral"
+    systemPromptPath: *agentPrompt
+    timeout: *standardTimeout
+    codeMode: *standardCodeMode
+    compaction: *standardCompaction
+    generationParams: &claudeGenOpts
+      maxGenerationTokens: 128000
+  - ref: fable
+    display_name: Claude Fable 5
+    id: claude-fable-5
+    type: anthropic
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic
+    api_key_env: ANTHROPIC_API_KEY
+    context_window: 1000000
+    max_output: 128000
+    input_cost_per_million: 10.00
+    output_cost_per_million: 50.00
+    cache_read_cost_per_million: 1.00
+    cache_write_cost_per_million: 12.50
+    thinkingValues: *claudeThinkingValues
+    patchRequest:
+      jsonPatch:
+        - op: add
+          path: /cache_control
+          value:
+            type: "ephemeral"
+    systemPromptPath: *agentPrompt
+    timeout: *standardTimeout
+    codeMode: *standardCodeMode
+    compaction: *standardCompaction
+    generationParams: *claudeGenOpts
