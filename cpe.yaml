@@ -16,8 +16,6 @@ models:
     thinkingValues: &openAIThinkingValues
       - value: none
         name: None
-      - value: minimal
-        name: Minimal
       - value: low
         name: Low
       - value: medium
@@ -40,18 +38,9 @@ models:
     timeout: &standardTimeout 1h
     generationParams:
       thinkingBudget: high
-    mcpServers: &standardMCPServers
-      parallel:
-        type: http
-        url: https://search.parallel.ai/mcp
-        headers:
-          Authorization: ${PARALLEL_API_KEY}
-        timeout: 300
     codeMode: &standardCodeMode
       enabled: true
       largeOutputCharLimit: 150000
-      localModulePaths:
-        - /Users/shashankpachava/dev/cuh
       maxTimeout: 3600
     compaction: &standardCompaction
       autoTriggerThreshold: 0.85
@@ -141,7 +130,6 @@ models:
       includeHeaders: *aagHeaders
     systemPromptPath: *gptPrompt
     timeout: *standardTimeout
-    mcpServers: *standardMCPServers
     codeMode: *standardCodeMode
     compaction: *standardCompaction
     generationParams:
@@ -159,7 +147,6 @@ models:
     thinkingValues: *openAIThinkingValues
     systemPromptPath: *gptPrompt
     timeout: *standardTimeout
-    mcpServers: *standardMCPServers
     codeMode: *standardCodeMode
     compaction: *standardCompaction
   - ref: ds
@@ -186,9 +173,8 @@ models:
         - op: add
           path: /max_tokens
           value: 393216
-    systemPromptPath: &deepseekPrompt $HOME/Library/Application Support/cpe/deepseek_instructions.md
+    systemPromptPath: &deepseekPrompt $HOME/Library/Application Support/cpe/agent_instructions.md
     timeout: *standardTimeout
-    mcpServers: *standardMCPServers
     codeMode: *standardCodeMode
     compaction: *standardCompaction
     generationParams:
