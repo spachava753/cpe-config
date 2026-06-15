@@ -5,7 +5,8 @@ models:
     display_name: GPT 5.5
     id: gpt-5.5
     type: responses
-    base_url: https://aag-gateway.fly.dev/codex/
+    base_url: https://chatgpt.com/backend-api/codex
+    # base_url: https://aag-gateway.fly.dev/codex/
     api_key_env: ""
     auth_method: oauth
     context_window: 272000
@@ -176,6 +177,29 @@ models:
     compaction: *standardCompaction
     generationParams:
       maxGenerationTokens: 393216
+  - ref: kimi
+    display_name: Kimi K2.7 Code
+    id: kimi-k2.7-code
+    type: anthropic
+    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/custom-moonshot-anthropic/anthropic
+    api_key_env: MOONSHOT_API_KEY
+    context_window: 262144
+    max_output: 128000
+    input_cost_per_million: 0.95
+    output_cost_per_million: 4.00
+    cache_read_cost_per_million: 0.19
+    patchRequest:
+      jsonPatch:
+        - op: add
+          path: /thinking
+          value:
+            type: enabled
+    systemPromptPath: *agentPrompt
+    timeout: *standardTimeout
+    codeMode: *standardCodeMode
+    compaction: *standardCompaction
+    generationParams:
+      maxGenerationTokens: 128000
   - ref: opus
     display_name: Claude Opus 4.8
     id: claude-opus-4-8
