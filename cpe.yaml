@@ -44,7 +44,7 @@ models:
       largeOutputCharLimit: 150000
       maxTimeout: 3600
     compaction: &standardCompaction
-      autoTriggerThreshold: 0.85
+      autoTriggerThreshold: 0.75
       initialMessageTemplate: |-
         A conversation compaction occurred. Continue the user's request from the
         preserved context below without asking them to repeat prior context unless
@@ -76,9 +76,6 @@ models:
 
         Immediate next action:
         {{index .ToolArguments "nextAction"}}
-
-        Raw compaction payload JSON:
-        {{.ToolArgumentsJSON}}
 
         Resume from this state and continue the task.
       inputSchema:
@@ -113,7 +110,7 @@ models:
           - summary
           - nextAction
         type: object
-      maxAutoCompactionRestarts: 10
+      maxAutoCompactionRestarts: 50
       toolDescription: Compact the current conversation into a fresh linked branch when context usage is high or immediately after a tool result that begins with [COMPACTION WARNING]. Preserve the user's objective, completed work, important findings, constraints, artifacts, open questions, and the next action so you can continue seamlessly without asking the user to restate prior context.
   - ref: gptmini
     display_name: GPT 5.4 Mini
