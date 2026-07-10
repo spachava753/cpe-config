@@ -2,18 +2,19 @@
 version: "1.0"
 models:
   - ref: gpt
-    display_name: GPT 5.5
-    id: gpt-5.5
+    display_name: GPT 5.6 Sol
+    id: gpt-5.6-sol
     type: responses
     base_url: https://chatgpt.com/backend-api/codex
     # base_url: https://aag-gateway.fly.dev/codex/
     api_key_env: ""
     auth_method: oauth
-    context_window: 272000
+    context_window: 372000
     max_output: 128000
     input_cost_per_million: 5
     output_cost_per_million: 30
     cache_read_cost_per_million: 0.5
+    cache_write_cost_per_million: 6.25
     thinkingValues: &openAIThinkingValues
       - value: none
         name: None
@@ -112,17 +113,18 @@ models:
         type: object
       maxAutoCompactionRestarts: 50
       toolDescription: Compact the current conversation into a fresh linked branch when context usage is high or immediately after a tool result that begins with [COMPACTION WARNING]. Preserve the user's objective, completed work, important findings, constraints, artifacts, open questions, and the next action so you can continue seamlessly without asking the user to restate prior context.
-  - ref: gptmini
-    display_name: GPT 5.4 Mini
-    id: gpt-5.4-mini
+  - ref: gpt55
+    display_name: GPT 5.5
+    id: gpt-5.5
     type: responses
     base_url: https://aag-gateway.fly.dev/codex/
     api_key_env: ""
     auth_method: oauth
     context_window: 272000
     max_output: 128000
-    input_cost_per_million: 21
-    output_cost_per_million: 168
+    input_cost_per_million: 5
+    output_cost_per_million: 30
+    cache_read_cost_per_million: 0.5
     thinkingValues: *openAIThinkingValues
     patchRequest:
       includeHeaders: *aagHeaders
@@ -130,21 +132,77 @@ models:
     timeout: *standardTimeout
     codeMode: *standardCodeMode
     compaction: *standardCompaction
-    generationParams:
-      thinkingBudget: "high"
-  - ref: gptpro
-    display_name: GPT 5.5 Pro
-    id: gpt-5.5-pro
+  - ref: terra
+    display_name: GPT 5.6 Terra
+    id: gpt-5.6-terra
     type: responses
-    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/openai
-    api_key_env: OPENAI_API_KEY
-    context_window: 272000
+    base_url: https://aag-gateway.fly.dev/codex/
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 372000
     max_output: 128000
-    input_cost_per_million: 21
-    output_cost_per_million: 168
+    input_cost_per_million: 2.50
+    output_cost_per_million: 15
+    cache_read_cost_per_million: 0.25
+    cache_write_cost_per_million: 3.125
     thinkingValues: *openAIThinkingValues
+    patchRequest:
+      includeHeaders: *aagHeaders
     systemPromptPath: *gptPrompt
     timeout: *standardTimeout
+    codeMode: *standardCodeMode
+    compaction: *standardCompaction
+  - ref: luna
+    display_name: GPT 5.6 Luna
+    id: gpt-5.6-luna
+    type: responses
+    base_url: https://aag-gateway.fly.dev/codex/
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 372000
+    max_output: 128000
+    input_cost_per_million: 1
+    output_cost_per_million: 6
+    cache_read_cost_per_million: 0.1
+    cache_write_cost_per_million: 1.25
+    thinkingValues: *openAIThinkingValues
+    patchRequest:
+      includeHeaders: *aagHeaders
+    systemPromptPath: *gptPrompt
+    timeout: *standardTimeout
+    codeMode: *standardCodeMode
+    compaction: *standardCompaction
+  - ref: gptpro
+    display_name: GPT 5.6 Sol Pro
+    id: gpt-5.6-sol
+    type: responses
+    base_url: https://chatgpt.com/backend-api/codex
+    # base_url: https://aag-gateway.fly.dev/codex/
+    api_key_env: ""
+    auth_method: oauth
+    context_window: 372000
+    max_output: 128000
+    input_cost_per_million: 5
+    output_cost_per_million: 30
+    cache_read_cost_per_million: 0.5
+    cache_write_cost_per_million: 6.25
+    thinkingValues: *openAIThinkingValues
+    patchRequest:
+      includeHeaders: *aagHeaders
+      jsonPatch:
+        - op: add
+          path: /service_tier
+          value: priority
+        - op: add
+          path: /parallel_tool_calls
+          value: false
+        - op: add
+          path: /reasoning/mode
+          value: pro
+    systemPromptPath: *gptPrompt
+    timeout: *standardTimeout
+    generationParams:
+      thinkingBudget: high
     codeMode: *standardCodeMode
     compaction: *standardCompaction
   - ref: ds
