@@ -26,6 +26,8 @@ models:
         name: High
       - value: xhigh
         name: Extra High
+      - value: max
+        name: Max
     patchRequest:
       includeHeaders: &aagHeaders
         X-AAG-Token: ${AAG_GATEWAY_TOKEN}
