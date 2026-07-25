@@ -33,9 +33,6 @@ models:
         X-AAG-Token: ${AAG_GATEWAY_TOKEN}
       jsonPatch:
         - op: add
-          path: /service_tier
-          value: priority
-        - op: add
           path: /parallel_tool_calls
           value: false
     systemPromptPath: &gptPrompt $HOME/Library/Application Support/cpe/gpt_instructions.md
