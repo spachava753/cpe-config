@@ -1,0 +1,385 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+IFS=$'\n\t'
+
+readonly PROGRAM=${0##*/}
+readonly SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+readonly LOCAL_CPE_CONFIG_REPO=$(cd -- "$SCRIPT_DIR/.." && pwd -P)
+readonly CPE_CONFIG_REPO_URL_DEFAULT=https://github.com/spachava753/cpe-config.git
+readonly LOCAL_SPRITE_BIN_DEFAULT="$HOME/.local/bin/sprite"
+readonly SSH_PUBLIC_KEY_DEFAULT="$HOME/.ssh/id_ed25519.pub"
+readonly SPRITE_KNOWN_HOSTS_DEFAULT="$HOME/.ssh/known_hosts_sprites"
+
+SPRITE_BIN=${SPRITE_BIN:-$LOCAL_SPRITE_BIN_DEFAULT}
+SSH_PUBLIC_KEY=${SPRITE_DEV_SSH_PUBLIC_KEY:-$SSH_PUBLIC_KEY_DEFAULT}
+CPE_CONFIG_REPO_URL=${SPRITE_DEV_CPE_CONFIG_REPO_URL:-$CPE_CONFIG_REPO_URL_DEFAULT}
+CPE_SECRETS_FILE=${CPE_SECRETS_ENV_FILE:-$HOME/.config/zsh/secrets.env}
+CPE_INSTALL_VERSION=${CPE_INSTALL_VERSION:-}
+SPRITE_KNOWN_HOSTS=${SPRITE_DEV_KNOWN_HOSTS:-$SPRITE_KNOWN_HOSTS_DEFAULT}
+SYNC_CREDENTIALS=1
+REFRESH_CPE=0
+TEMP_DIR=
+
+usage() {
+  cat <<EOF
+Usage:
+  $PROGRAM create <sprite> [options]
+  $PROGRAM provision <sprite> [options]
+  $PROGRAM ssh <sprite> [options]
+
+Commands:
+  create      Create a Sprite and provision SSH and CPE.
+  provision   Reconcile SSH, CPE, config, and credentials on an existing Sprite.
+  ssh         Reconcile setup, then open an interactive SSH shell.
+
+Options:
+  --no-credentials     Do not sync CPE OAuth state or required API keys.
+  --refresh-cpe        Reinstall CPE even when it is already present.
+  --cpe-version <ref>  Build CPE from a branch, tag, or commit instead of
+                       installing the latest GitHub release artifact.
+  -h, --help           Show this help.
+
+Environment overrides:
+  SPRITE_BIN, SPRITE_DEV_SSH_PUBLIC_KEY, SPRITE_DEV_CPE_CONFIG_REPO_URL,
+  CPE_SECRETS_ENV_FILE, CPE_INSTALL_VERSION, SPRITE_DEV_KNOWN_HOSTS
+
+Examples:
+  $PROGRAM create feature-test
+  $PROGRAM provision feature-test --refresh-cpe
+  $PROGRAM provision feature-test --cpe-version main
+  $PROGRAM ssh feature-test
+EOF
+}
+
+die() {
+  printf '%s: %s\n' "$PROGRAM" "$*" >&2
+  exit 1
+}
+
+note() {
+  printf '==> %s\n' "$*"
+}
+
+cleanup() {
+  if [[ -n ${TEMP_DIR:-} && -d $TEMP_DIR ]]; then
+    rm -rf "$TEMP_DIR"
+  fi
+}
+trap cleanup EXIT
+
+resolve_binary() {
+  local configured=$1
+  local name=$2
+  if [[ -x $configured ]]; then
+    printf '%s\n' "$configured"
+    return
+  fi
+  command -v "$name" 2>/dev/null || die "required command not found: $name"
+}
+
+validate_sprite_name() {
+  local name=$1
+  [[ -n $name ]] || die "sprite name is required"
+  [[ $name != *.sprite ]] || die "pass the Sprite name without the .sprite SSH suffix"
+  [[ $name =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || die "invalid Sprite name: $name"
+}
+
+parse_options() {
+  while (($#)); do
+    case $1 in
+      --no-credentials)
+        SYNC_CREDENTIALS=0
+        ;;
+      --refresh-cpe)
+        REFRESH_CPE=1
+        ;;
+      --cpe-version)
+        shift
+        (($#)) || die "--cpe-version requires a branch, tag, or commit"
+        CPE_INSTALL_VERSION=$1
+        [[ -n $CPE_INSTALL_VERSION ]] || die "--cpe-version cannot be empty"
+        ;;
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      --*)
+        die "unknown option: $1"
+        ;;
+      *)
+        die "unexpected argument: $1"
+        ;;
+    esac
+    shift
+  done
+}
+
+prepare_bundle() {
+  local source_config="$LOCAL_CPE_CONFIG_REPO/cpe.yaml"
+  [[ -r $SSH_PUBLIC_KEY ]] || die "SSH public key not readable: $SSH_PUBLIC_KEY"
+  [[ -r $source_config ]] || die "local CPE config not readable: $source_config"
+
+  TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/sprite-dev.XXXXXX")
+
+  cat > "$TEMP_DIR/sshd.conf" <<'EOF'
+PubkeyAuthentication yes
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin no
+EOF
+
+  : > "$TEMP_DIR/required-env-names"
+  {
+    awk '$1 == "api_key_env:" { gsub(/["'\'' ]/, "", $2); print $2 }' "$source_config"
+    grep -Eo '\$\{[A-Za-z_][A-Za-z0-9_]*\}' "$source_config" \
+      | tr -d '${}' || true
+  } | sed '/^$/d' | sort -u > "$TEMP_DIR/required-env-names"
+
+  : > "$TEMP_DIR/secrets.env"
+  chmod 600 "$TEMP_DIR/secrets.env"
+  if ((SYNC_CREDENTIALS)); then
+    (
+      set +u
+      set -a
+      if [[ -r $CPE_SECRETS_FILE ]]; then
+        # This is the user's trusted local shell-format secrets file.
+        source "$CPE_SECRETS_FILE"
+      fi
+      set +a
+      while IFS= read -r name; do
+        [[ -n $name ]] || continue
+        if value=$(printenv "$name"); then
+          printf 'export %s=%q\n' "$name" "$value"
+        else
+          printf 'warning: CPE requires %s but it is not set locally\n' "$name" >&2
+        fi
+      done < "$TEMP_DIR/required-env-names"
+    ) > "$TEMP_DIR/secrets.env"
+  fi
+}
+
+provision() {
+  local name=$1
+  validate_sprite_name "$name"
+  prepare_bundle
+
+  local -a uploads
+  uploads=(
+    --file "$SSH_PUBLIC_KEY:/tmp/sprite-dev-key.pub"
+    --file "$TEMP_DIR/sshd.conf:/tmp/sprite-dev-sshd.conf"
+  )
+
+  if ((SYNC_CREDENTIALS)); then
+    uploads+=(--file "$TEMP_DIR/secrets.env:/tmp/sprite-dev-secrets.env")
+    [[ -r $LOCAL_CPE_CONFIG_REPO/auth.json ]] \
+      && uploads+=(--file "$LOCAL_CPE_CONFIG_REPO/auth.json:/tmp/sprite-dev-auth.json")
+  fi
+
+  local remote_script
+  read -r -d '' remote_script <<'REMOTE' || true
+set -Eeuo pipefail
+sync_credentials=$1
+refresh_cpe=$2
+cpe_ref=$3
+cpe_config_repo_url=$4
+cleanup() {
+  rm -f /tmp/sprite-dev-*
+}
+trap cleanup EXIT
+
+restart_sshd=0
+if ! command -v sshd >/dev/null 2>&1; then
+  echo '[remote] installing OpenSSH server'
+  sudo env DEBIAN_FRONTEND=noninteractive apt-get update
+  sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-server
+  restart_sshd=1
+fi
+
+umask 077
+mkdir -p "$HOME/.ssh"
+touch "$HOME/.ssh/authorized_keys"
+chmod 700 "$HOME/.ssh"
+chmod 600 "$HOME/.ssh/authorized_keys"
+key=$(tr -d '\r\n' < /tmp/sprite-dev-key.pub)
+grep -qxF "$key" "$HOME/.ssh/authorized_keys" \
+  || printf '%s\n' "$key" >> "$HOME/.ssh/authorized_keys"
+
+if ! sudo cmp -s /tmp/sprite-dev-sshd.conf \
+  /etc/ssh/sshd_config.d/60-sprite-key-only.conf; then
+  sudo install -o root -g root -m 0644 \
+    /tmp/sprite-dev-sshd.conf /etc/ssh/sshd_config.d/60-sprite-key-only.conf
+  restart_sshd=1
+fi
+sudo /usr/sbin/sshd -t
+
+if ! service_state=$(sprite-env services get sshd 2>/dev/null); then
+  sprite-env services create sshd --cmd /usr/sbin/sshd
+elif [[ $service_state != *'"status":"running"'* ]]; then
+  sprite-env services start sshd
+elif [[ $restart_sshd == 1 ]]; then
+  sprite-env services stop sshd >/dev/null 2>&1 || true
+  sprite-env services start sshd
+fi
+
+config_dir="$HOME/.config/cpe"
+if [[ -d $config_dir/.git ]]; then
+  echo '[remote] updating cpe-config'
+  git -C "$config_dir" pull --ff-only
+elif [[ -e $config_dir ]]; then
+  # Preserve credentials installed by older versions while replacing managed files.
+  staging_dir="$HOME/.config/cpe-clone"
+  rm -rf "$staging_dir"
+  echo '[remote] migrating cpe-config into ~/.config/cpe'
+  git clone --depth 1 "$cpe_config_repo_url" "$staging_dir"
+  find "$config_dir" -mindepth 1 -maxdepth 1 \
+    ! -name auth.json ! -name secrets.env ! -name .cpeconvo ! -name .cpe.log \
+    -exec rm -rf {} +
+  cp -a "$staging_dir/." "$config_dir/"
+  rm -rf "$staging_dir"
+else
+  echo '[remote] cloning cpe-config'
+  git clone --depth 1 "$cpe_config_repo_url" "$config_dir"
+fi
+for file in cpe.yaml agent_instructions.md gpt_instructions.md; do
+  [[ -r $config_dir/$file ]] || {
+    printf '[remote] cpe-config is missing required file: %s\n' "$file" >&2
+    exit 1
+  }
+done
+
+install -d -m 0755 "$HOME/.local/bin"
+if [[ $refresh_cpe == 1 || ! -x $HOME/.local/bin/cpe ]]; then
+  if [[ -n $cpe_ref ]]; then
+    echo "[remote] building CPE from $cpe_ref"
+    GOBIN="$HOME/.local/bin" \
+      go install "github.com/spachava753/cpe@$cpe_ref"
+  else
+    echo '[remote] installing latest CPE release'
+    curl -fsSL \
+      https://raw.githubusercontent.com/spachava753/cpe/main/install.sh \
+      -o /tmp/sprite-dev-install-cpe.sh
+    CPE_INSTALL_REPO=spachava753/cpe \
+      CPE_INSTALL_VERSION=latest \
+      CPE_INSTALL_DIR="$HOME/.local/bin" \
+      sh /tmp/sprite-dev-install-cpe.sh
+  fi
+fi
+
+if [[ $sync_credentials == 1 ]]; then
+  [[ -f /tmp/sprite-dev-secrets.env ]] \
+    && install -m 0600 /tmp/sprite-dev-secrets.env "$HOME/.config/cpe/secrets.env"
+  [[ -f /tmp/sprite-dev-auth.json ]] \
+    && install -m 0600 /tmp/sprite-dev-auth.json "$HOME/.config/cpe/auth.json"
+fi
+
+# The stock Sprite bashrc calls bind for non-interactive SSH commands.
+python3 - "$HOME/.bashrc" <<'PY'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1])
+lines = p.read_text().splitlines(keepends=True)
+for i, line in enumerate(lines):
+    if "history-search-backward" in line and "bind" in line:
+        lines[i] = "[[ $- == *i* ]] && bind '\"\\e[A\": history-search-backward'\n"
+    elif "history-search-forward" in line and "bind" in line:
+        lines[i] = "[[ $- == *i* ]] && bind '\"\\e[B\": history-search-forward'\n"
+p.write_text("".join(lines))
+PY
+
+if ! grep -qF '# sprite-dev: load CPE secrets' "$HOME/.bashrc"; then
+  cat >> "$HOME/.bashrc" <<'EOF'
+
+# sprite-dev: load CPE secrets
+if [ -r "$HOME/.config/cpe/secrets.env" ]; then
+  . "$HOME/.config/cpe/secrets.env"
+fi
+EOF
+fi
+
+(
+  set +u
+  if [[ -r $HOME/.config/cpe/secrets.env ]]; then
+    source "$HOME/.config/cpe/secrets.env"
+  fi
+  set -u
+  "$HOME/.local/bin/cpe" model list \
+    --config "$HOME/.config/cpe/cpe.yaml" >/dev/null
+)
+printf '[remote] ready: CPE %s, SSH service running\n' \
+  "$("$HOME/.local/bin/cpe" --version)"
+REMOTE
+
+  note "Provisioning Sprite $name"
+  "$SPRITE_BIN" exec -s "$name" "${uploads[@]}" -- \
+    bash -c "$remote_script" -- "$SYNC_CREDENTIALS" "$REFRESH_CPE" \
+    "$CPE_INSTALL_VERSION" "$CPE_CONFIG_REPO_URL"
+
+  mkdir -p "$(dirname "$SPRITE_KNOWN_HOSTS")"
+  touch "$SPRITE_KNOWN_HOSTS"
+  chmod 600 "$SPRITE_KNOWN_HOSTS"
+
+  note "Validating SSH alias $name.sprite"
+  local ssh_output
+  if ! ssh_output=$(ssh -o BatchMode=yes -o ConnectTimeout=20 "$name.sprite" \
+    'test -x "$HOME/.local/bin/cpe" && printf "ready:%s@%s\n" "$(id -un)" "$(hostname)"' 2>&1); then
+    if [[ $ssh_output == *"REMOTE HOST IDENTIFICATION HAS CHANGED"* ]]; then
+      note "Replacing stale host key for recreated Sprite $name"
+      ssh-keygen -R "$name.sprite" -f "$SPRITE_KNOWN_HOSTS" >/dev/null
+      ssh_output=$(ssh -o BatchMode=yes -o ConnectTimeout=20 "$name.sprite" \
+        'test -x "$HOME/.local/bin/cpe" && printf "ready:%s@%s\n" "$(id -un)" "$(hostname)"' 2>&1)
+    else
+      printf '%s\n' "$ssh_output" >&2
+      return 1
+    fi
+  fi
+  printf '%s\n' "$ssh_output"
+}
+
+main() {
+  (($#)) || { usage; exit 2; }
+  local command=$1
+  shift
+
+  if [[ $command == -h || $command == --help || $command == help ]]; then
+    usage
+    exit 0
+  fi
+
+  (($#)) || die "sprite name is required"
+  local name=$1
+  shift
+
+  SPRITE_BIN=$(resolve_binary "$SPRITE_BIN" sprite)
+
+  if [[ $command == proxy ]]; then
+    # Internal SSH ProxyCommand entry point. The argument is <sprite>.sprite.
+    local proxy_name=${name%.sprite}
+    [[ $proxy_name != "$name" ]] || die "proxy host must end in .sprite"
+    validate_sprite_name "$proxy_name"
+    (($# == 0)) || die "proxy does not accept options"
+    exec "$SPRITE_BIN" proxy -s "$proxy_name" -W :22
+  fi
+
+  validate_sprite_name "$name"
+  parse_options "$@"
+
+  case $command in
+    create)
+      note "Creating Sprite $name"
+      "$SPRITE_BIN" create --skip-console "$name"
+      provision "$name"
+      ;;
+    provision)
+      provision "$name"
+      ;;
+    ssh)
+      provision "$name"
+      exec ssh "$name.sprite"
+      ;;
+    *)
+      die "unknown command: $command (run '$PROGRAM --help')"
+      ;;
+  esac
+}
+
+main "$@"

@@ -225,7 +225,7 @@ models:
         - op: replace
           path: /thinking/type
           value: enabled
-    systemPromptPath: &agentPrompt $HOME/Library/Application Support/cpe/agent_instructions.md
+    systemPromptPath: &agentPrompt ./agent_instructions.md
     timeout: *standardTimeout
     codeMode: *standardCodeMode
     compaction: *standardCompaction
