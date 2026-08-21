@@ -51,7 +51,7 @@ models:
         absolutely necessary.
 
         Original conversation root message:
-        {{with index .Dialog 0}}{{range .Blocks}}{{.Content}}
+        {{with index .Dialog 0}}{{range .Blocks}}{{if eq .ModalityType.String "text"}}{{.Content}}{{else}}({{.ModalityType}}){{end}}
         {{end}}{{end}}
 
         Compaction summary:
