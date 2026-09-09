@@ -2,8 +2,8 @@
 version: "1.0"
 models:
   - ref: gpt
-    display_name: GPT 5.6 Sol
-    id: gpt-5.6-sol
+    display_name: GPT 6 Astra
+    id: gpt-6-astra
     type: responses
     base_url: https://chatgpt.com/backend-api/codex
     # base_url: https://aag-gateway.fly.dev/codex/
@@ -11,10 +11,10 @@ models:
     auth_method: oauth
     context_window: 372000
     max_output: 128000
-    input_cost_per_million: 5
-    output_cost_per_million: 30
-    cache_read_cost_per_million: 0.5
-    cache_write_cost_per_million: 6.25
+    input_cost_per_million: 10
+    output_cost_per_million: 50
+    cache_read_cost_per_million: 1
+    cache_write_cost_per_million: 12.50
     thinkingValues: &openAIThinkingValues
       - value: none
         name: None
@@ -112,25 +112,6 @@ models:
         type: object
       maxAutoCompactionRestarts: 50
       toolDescription: Compact the current conversation into a fresh linked branch when context usage is high or immediately after a tool result that begins with [COMPACTION WARNING]. Preserve the user's objective, completed work, important findings, constraints, artifacts, open questions, and the next action so you can continue seamlessly without asking the user to restate prior context.
-  - ref: gpt55
-    display_name: GPT 5.5
-    id: gpt-5.5
-    type: responses
-    base_url: https://aag-gateway.fly.dev/codex/
-    api_key_env: ""
-    auth_method: oauth
-    context_window: 272000
-    max_output: 128000
-    input_cost_per_million: 5
-    output_cost_per_million: 30
-    cache_read_cost_per_million: 0.5
-    thinkingValues: *openAIThinkingValues
-    patchRequest:
-      includeHeaders: *aagHeaders
-    systemPromptPath: *gptPrompt
-    timeout: *standardTimeout
-    codeMode: *standardCodeMode
-    compaction: *standardCompaction
   - ref: terra
     display_name: GPT 5.6 Terra
     id: gpt-5.6-terra
@@ -171,66 +152,6 @@ models:
     timeout: *standardTimeout
     codeMode: *standardCodeMode
     compaction: *standardCompaction
-  - ref: gptpro
-    display_name: GPT 5.6 Sol Pro
-    id: gpt-5.6-sol
-    type: responses
-    base_url: https://chatgpt.com/backend-api/codex
-    # base_url: https://aag-gateway.fly.dev/codex/
-    api_key_env: ""
-    auth_method: oauth
-    context_window: 372000
-    max_output: 128000
-    input_cost_per_million: 5
-    output_cost_per_million: 30
-    cache_read_cost_per_million: 0.5
-    cache_write_cost_per_million: 6.25
-    thinkingValues: *openAIThinkingValues
-    patchRequest:
-      includeHeaders: *aagHeaders
-      jsonPatch:
-        - op: add
-          path: /service_tier
-          value: priority
-        - op: add
-          path: /parallel_tool_calls
-          value: false
-        - op: add
-          path: /reasoning/mode
-          value: pro
-    systemPromptPath: *gptPrompt
-    timeout: *standardTimeout
-    generationParams:
-      thinkingBudget: high
-    codeMode: *standardCodeMode
-    compaction: *standardCompaction
-  - ref: ds
-    display_name: DeepSeek V4 Pro
-    id: deepseek-v4-pro
-    type: anthropic
-    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/custom-deepseek-anthropic/anthropic
-    api_key_env: DEEPSEEK_API_KEY
-    context_window: 1000000
-    max_output: 393216
-    input_cost_per_million: 0.435
-    output_cost_per_million: 0.87
-    cache_read_cost_per_million: 0.003625
-    thinkingValues: &deepseekThinkingValues
-      - value: high
-        name: High
-      - value: max
-        name: Max
-    patchRequest:
-      jsonPatch:
-        - op: replace
-          path: /thinking/type
-          value: enabled
-    systemPromptPath: &agentPrompt ./agent_instructions.md
-    timeout: *standardTimeout
-    codeMode: *standardCodeMode
-    compaction: *standardCompaction
-    generationParams:
-      maxGenerationTokens: 393216
   - ref: kimi
     display_name: Kimi K2.7 Code
     id: kimi-k2.7-code
@@ -248,7 +169,7 @@ models:
           path: /thinking
           value:
             type: enabled
-    systemPromptPath: *agentPrompt
+    systemPromptPath: &agentPrompt $HOME/Library/Application Support/cpe/agent_instructions.md
     timeout: *standardTimeout
     codeMode: *standardCodeMode
     compaction: *standardCompaction
@@ -277,66 +198,3 @@ models:
     compaction: *standardCompaction
     generationParams:
       maxGenerationTokens: 128000
-  - ref: opus
-    display_name: Claude Opus 4.8
-    id: claude-opus-4-8
-    type: anthropic
-    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic
-    api_key_env: ANTHROPIC_API_KEY
-    context_window: 1000000
-    max_output: 128000
-    input_cost_per_million: 5.00
-    output_cost_per_million: 25.00
-    cache_read_cost_per_million: 6.25
-    cache_write_cost_per_million: 0.50
-    thinkingValues: &claudeThinkingValues
-      - value: disabled
-        name: Disabled
-      - value: adaptive
-        name: Adaptive
-      - value: low
-        name: Low
-      - value: medium
-        name: Medium
-      - value: high
-        name: High
-      - value: xhigh
-        name: Extra High
-      - value: max
-        name: Max
-    patchRequest:
-      jsonPatch:
-        - op: add
-          path: /cache_control
-          value:
-            type: "ephemeral"
-    systemPromptPath: *agentPrompt
-    timeout: *standardTimeout
-    codeMode: *standardCodeMode
-    compaction: *standardCompaction
-    generationParams: &claudeGenOpts
-      maxGenerationTokens: 128000
-  - ref: fable
-    display_name: Claude Fable 5
-    id: claude-fable-5
-    type: anthropic
-    base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/anthropic
-    api_key_env: ANTHROPIC_API_KEY
-    context_window: 1000000
-    max_output: 128000
-    input_cost_per_million: 10.00
-    output_cost_per_million: 50.00
-    cache_read_cost_per_million: 1.00
-    cache_write_cost_per_million: 12.50
-    thinkingValues: *claudeThinkingValues
-    patchRequest:
-      jsonPatch:
-        - op: add
-          path: /cache_control
-          value:
-            type: "ephemeral"
-    systemPromptPath: *agentPrompt
-    timeout: *standardTimeout
-    codeMode: *standardCodeMode
-    compaction: *standardCompaction
-    generationParams: *claudeGenOpts
