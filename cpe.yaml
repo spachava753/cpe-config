@@ -112,19 +112,19 @@ models:
         type: object
       maxAutoCompactionRestarts: 50
       toolDescription: Compact the current conversation into a fresh linked branch when context usage is high or immediately after a tool result that begins with [COMPACTION WARNING]. Preserve the user's objective, completed work, important findings, constraints, artifacts, open questions, and the next action so you can continue seamlessly without asking the user to restate prior context.
-  - ref: terra
-    display_name: GPT 5.6 Terra
-    id: gpt-5.6-terra
+  - ref: sol
+    display_name: GPT 5.6 Sol
+    id: gpt-5.6-sol
     type: responses
     base_url: https://aag-gateway.fly.dev/codex/
     api_key_env: ""
     auth_method: oauth
     context_window: 372000
     max_output: 128000
-    input_cost_per_million: 2.50
-    output_cost_per_million: 15
-    cache_read_cost_per_million: 0.25
-    cache_write_cost_per_million: 3.125
+    input_cost_per_million: 4
+    output_cost_per_million: 20
+    cache_read_cost_per_million: 0.40
+    cache_write_cost_per_million: 5.0
     thinkingValues: *openAIThinkingValues
     patchRequest:
       includeHeaders: *aagHeaders
