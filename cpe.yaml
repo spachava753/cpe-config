@@ -1,12 +1,16 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/spachava753/cpe/refs/heads/main/schema/cpe-config-schema.json
 version: "1.0"
+
+# CPE only supports version and models at the root. Define shared YAML anchors
+# on their first model use below, rather than in a separate top-level block.
+# Each profile keeps its provider, pricing, and prompt settings explicit.
 models:
+  # Astra: thinking is always enabled; defaults to high.
   - ref: gpt
     display_name: GPT 6 Astra
     id: gpt-6-astra
     type: responses
     base_url: https://chatgpt.com/backend-api/codex
-    # base_url: https://aag-gateway.fly.dev/codex/
     api_key_env: ""
     auth_method: oauth
     context_window: 372000
@@ -15,9 +19,8 @@ models:
     output_cost_per_million: 50
     cache_read_cost_per_million: 1
     cache_write_cost_per_million: 12.50
-    thinkingValues: &openAIThinkingValues
-      - value: none
-        name: None
+    # Astra does not support none. Sol and Luna define their own shared list below.
+    thinkingValues:
       - value: low
         name: Low
       - value: medium
@@ -29,16 +32,17 @@ models:
       - value: max
         name: Max
     patchRequest:
-      includeHeaders: &aagHeaders
-        X-AAG-Token: ${AAG_GATEWAY_TOKEN}
+      # Astra-only request override; not shared with Sol or Luna.
       jsonPatch:
         - op: add
           path: /parallel_tool_calls
           value: false
     systemPromptPath: astra_instructions.md
-    timeout: &standardTimeout 1h
     generationParams:
       thinkingBudget: high
+
+    # Shared runtime settings, reused by every profile below.
+    timeout: &standardTimeout 1h
     codeMode: &standardCodeMode
       enabled: true
       largeOutputCharLimit: 150000
@@ -112,11 +116,13 @@ models:
         type: object
       maxAutoCompactionRestarts: 50
       toolDescription: Compact the current conversation into a fresh linked branch when context usage is high or immediately after a tool result that begins with [COMPACTION WARNING]. Preserve the user's objective, completed work, important findings, constraints, artifacts, open questions, and the next action so you can continue seamlessly without asking the user to restate prior context.
+
+  # Sol: defines the thinking choices and prompt shared with Luna.
   - ref: sol
     display_name: GPT 5.6 Sol
     id: gpt-5.6-sol
     type: responses
-    base_url: https://aag-gateway.fly.dev/codex/
+    base_url: https://chatgpt.com/backend-api/codex
     api_key_env: ""
     auth_method: oauth
     context_window: 372000
@@ -125,18 +131,30 @@ models:
     output_cost_per_million: 20
     cache_read_cost_per_million: 0.40
     cache_write_cost_per_million: 5.0
-    thinkingValues: *openAIThinkingValues
-    patchRequest:
-      includeHeaders: *aagHeaders
+    thinkingValues: &openAIThinkingValues
+      - value: none
+        name: None
+      - value: low
+        name: Low
+      - value: medium
+        name: Medium
+      - value: high
+        name: High
+      - value: xhigh
+        name: Extra High
+      - value: max
+        name: Max
     systemPromptPath: &gptPrompt gpt_instructions.md
     timeout: *standardTimeout
     codeMode: *standardCodeMode
     compaction: *standardCompaction
+
+  # Luna: reuses Sol's thinking choices and prompt.
   - ref: luna
     display_name: GPT 5.6 Luna
     id: gpt-5.6-luna
     type: responses
-    base_url: https://aag-gateway.fly.dev/codex/
+    base_url: https://chatgpt.com/backend-api/codex
     api_key_env: ""
     auth_method: oauth
     context_window: 372000
@@ -146,16 +164,17 @@ models:
     cache_read_cost_per_million: 0.1
     cache_write_cost_per_million: 1.25
     thinkingValues: *openAIThinkingValues
-    patchRequest:
-      includeHeaders: *aagHeaders
     systemPromptPath: *gptPrompt
     timeout: *standardTimeout
     codeMode: *standardCodeMode
     compaction: *standardCompaction
+
+  # Kimi: always-on thinking, with no selectable thinkingValues.
   - ref: kimi
     display_name: Kimi K2.7 Code
     id: kimi-k2.7-code
     type: anthropic
+    # Custom provider API root; CPE appends /v1/messages.
     base_url: https://gateway.ai.cloudflare.com/v1/4eee6dd2fdc8cebc7802c5a638f460fe/cpe/custom-moonshot-anthropic/anthropic
     api_key_env: MOONSHOT_API_KEY
     context_window: 262144
@@ -163,6 +182,7 @@ models:
     input_cost_per_million: 0.95
     output_cost_per_million: 4.00
     cache_read_cost_per_million: 0.19
+    # This endpoint requires explicit thinking even though the model always thinks.
     patchRequest:
       jsonPatch:
         - op: add
@@ -175,6 +195,8 @@ models:
     compaction: *standardCompaction
     generationParams:
       maxGenerationTokens: 128000
+
+  # GLM: direct Anthropic-compatible endpoint, with thinking enabled by the patch.
   - ref: glm
     display_name: GLM 5.2
     id: glm-5.2

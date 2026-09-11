@@ -12,6 +12,8 @@ This repository is a [CPE](https://github.com/spachava753/cpe) agent configurati
 
 ## Known Config Nuances
 
+- CPE's config schema only allows `version` and `models` at the root. Keep shared YAML anchors on their first model use; don't add a top-level defaults or anchors block.
+- Astra (`gpt`) does not support `none` in `thinkingValues`. Keep its choices separate from the shared Sol/Luna list, which includes `none`.
 - Keep `systemPromptPath` values relative to `cpe.yaml`; CPE resolves them from the config file's directory, which keeps this repository portable between macOS and Linux/Sprites.
 - `scripts/sprite-dev` clones `cpe-config` directly into `~/.config/cpe` on each Sprite; only local secrets and OAuth state are uploaded. It installs the latest CPE GitHub release artifact by default. `--cpe-version` or `CPE_INSTALL_VERSION` opts into a source build for a branch, tag, or commit.
 - For Cloudflare AI Gateway custom providers, configure the provider's API root, not the final SDK request URL. Include a provider-specific compatibility prefix if that is part of the upstream root, but do not include version or operation suffixes that the CPE client/SDK appends. For `type: anthropic`, CPE appends `/v1/messages`; for Moonshot this means the custom provider base URL is `https://api.moonshot.ai/anthropic`, not `https://api.moonshot.ai/anthropic/v1`.
