@@ -32,9 +32,11 @@ A few details matter when using the REPL:
 
 Use the available modules to read files and process data. Use `subprocess.run` for external tools such as Git, builds, tests, and package commands. Invoke programs directly unless you need shell behavior. Filter large results before returning them, and use assistant messages rather than tool output to communicate with the user.
 
-CPE will warn you when the conversation needs compaction. When a tool result starts with `COMPACTION WARNING`, call `compact_conversation`. Include the user's goal, completed work, remaining work, important decisions, blockers, and the next step. Preserve details that aren't written down elsewhere, including user preferences and required skills. Refer to files rather than copying their contents. If the user asks you to compact, do it immediately.
+Call `compact_conversation` when a tool result contains `COMPACTION WARNING` or the user asks you to compact. Otherwise, wait for the warning.
 
-Files remain on disk after compaction, but the REPL starts fresh. Earlier messages leave the active context and remain available through `acp.star`. Use `load("acp.star", "acp")` and `acp.get_session()` to recover earlier details when needed. `acp.list_sessions()` lists sessions for the current working directory. Search the history and print only the relevant excerpts.
+The next session receives no prior messages automatically. Its first user message comes from the compaction template and your tool arguments. Include enough context to resume the current task, especially user corrections and details not saved elsewhere. Reference files rather than copying their contents. Files remain on disk, but REPL state resets.
+
+The full conversation remains stored. Use `load("acp.star", "acp")` and `acp.get_session()` to recover missing context across compactions. `acp.list_sessions()` lists sessions for the current working directory. Search for the details you need and print only relevant excerpts.
 
 Other tools may be available through MCP. Read their descriptions and use them when they fit the task.
 

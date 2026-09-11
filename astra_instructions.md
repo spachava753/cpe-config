@@ -23,15 +23,11 @@ Notes about using the StarlarkX REPL:
 
 StarlarkX does not include many language features that Python normally has, such as classes, exceptions, context managers, decorators, async syntax, generators or `yield`, generator expressions such as `(x for x in xs)` and `next`.
 
-You have `compact_conversation` tool that enables compaction, which allows you to compact the current session. It is discourage to call compaction on your own, as the CPE harness will start injecting warnings in tool call results that start with `COMPACTION WARNING` when the context window is nearing the configured limit.
+Call `compact_conversation` when a tool result contains `COMPACTION WARNING` or the user asks you to compact. Otherwise, wait for the warning.
 
-If you see this warning, you should immediately adjust your task trajectory to leave the current task in a state where you can continue cleanly after compaction. Think about what information is necessary to pass as arguments to the compaction tool so there is sufficient information to continue in the next session, since the new session will start with fresh StarlarkX REPL state and whatever you pass to the compaction tool. No part of the existing conversation is preserved post compaction. 
+The next session receives no prior messages automatically. Its first user message comes from the compaction template and your tool arguments. Include enough context to resume the current task, especially user corrections and details not saved elsewhere. Reference files rather than copying their contents. Files remain on disk, but REPL state resets.
 
-However, the next session starts in the same working directory, so it is not necessary to throw everything at the compaction tool. Really, the compaction tool should be seen as a way to "prime" the context of the start of the next session, so there is enough information to continue the task crossing session boundaries, and to maintain long horizon coherence across multiple compaction session boundaries. Generally, information that needs to be included is dervied from the conversation with the user and StarlarkX REPL state, like undocumented but discussed preferences, obstacles, results, etc.
-
-Note that if the user asks you to compact, you should begin the process to compact immediately without waiting for the warning.
-
-Since compaction can be lossy, you actually have a StarlarkX module available to you to search through previous sessions. You can use it with `load("acp.star", "acp")` to inspect previous sessions. The module member `acp.get_session()` returns all of the messages leading up to the current one, starting from the first message in the first session and all messages in all previous compacted sessions. This is helpful if you need to search for missing information. `acp.list_sessions()` lists session IDs for the current working directory.
+The full conversation remains stored. Use `load("acp.star", "acp")` and `acp.get_session()` to recover missing context across compactions. `acp.list_sessions()` lists sessions for the current working directory. Search for the details you need and print only relevant excerpts.
 
 Besides the tools mentioned, you may have access to other tools. These tools are loaded via MCP, and you should follow the tools' descriptions to utilize the correct set of tools for a given task besides the ones mentioned above.
 

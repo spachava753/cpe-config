@@ -50,72 +50,85 @@ models:
     compaction: &standardCompaction
       autoTriggerThreshold: 0.75
       initialMessageTemplate: |-
-        A conversation compaction occurred. Continue the user's request from the
-        preserved context below without asking them to repeat prior context unless
-        absolutely necessary.
+        The conversation was compacted. Use the handoff below to resume the current task.
 
-        Original conversation root message:
-        {{with index .Dialog 0}}{{range .Blocks}}{{if eq .ModalityType.String "text"}}{{.Content}}{{else}}({{.ModalityType}}){{end}}
+        Current task and latest user instruction:
+        {{index .ToolArguments "currentTask"}}
+        {{with index .ToolArguments "constraints"}}
+
+        Scope, corrections, and approval limits:
+        {{range .}}- {{.}}
         {{end}}{{end}}
 
-        Compaction summary:
+        Current state and remaining work:
         {{index .ToolArguments "summary"}}
         {{with index .ToolArguments "keyPoints"}}
 
-        Key points:
+        Findings and decisions:
         {{range .}}- {{.}}
         {{end}}{{end}}{{with index .ToolArguments "completedWork"}}
 
-        Completed work:
+        Completed work and verification status:
         {{range .}}- {{.}}
         {{end}}{{end}}{{with index .ToolArguments "artifacts"}}
 
-        Important artifacts:
+        Artifacts and recovery references:
         {{range .}}- {{.}}
         {{end}}{{end}}{{with index .ToolArguments "openQuestions"}}
 
-        Open questions:
+        Open questions and blockers:
         {{range .}}- {{.}}
         {{end}}{{end}}
 
-        Immediate next action:
+        Proposed next action:
         {{index .ToolArguments "nextAction"}}
 
-        Resume from this state and continue the task.
+        Continue the current task. If you need more context, search the saved
+        conversation with acp.get_session(). Files are unchanged; REPL state is gone.
       inputSchema:
         properties:
+          currentTask:
+            description: The latest user request, including whether to analyze, plan, or implement.
+            type: string
+          constraints:
+            description: Scope limits, user corrections, rejected approaches, and current approval limits. Use an empty list if none apply.
+            items:
+              type: string
+            type: array
           artifacts:
-            description: Relevant files, functions, commands, URLs, datasets, or outputs that matter for resuming the task.
+            description: Files, branches, commits, saved outputs, and other references needed to resume.
             items:
               type: string
             type: array
           completedWork:
-            description: Meaningful work already completed, such as code changes made, analyses finished, or sources reviewed.
+            description: Work completed and checks run, with results. Note whether changes are committed or uncommitted.
             items:
               type: string
             type: array
           keyPoints:
-            description: Important findings, decisions, constraints, assumptions, or caveats to preserve.
+            description: Findings, decisions, assumptions, preferences, and required skills. Mark superseded decisions.
             items:
               type: string
             type: array
           nextAction:
-            description: The single most important next thing to do immediately after compaction.
+            description: The next step, including any clarification or approval needed first.
             type: string
           openQuestions:
-            description: Remaining unknowns, unresolved decisions, or follow-up questions.
+            description: Unresolved questions and blockers.
             items:
               type: string
             type: array
           summary:
-            description: A concise but information-dense summary of the current state of the task.
+            description: Current state and remaining work, including important details not saved elsewhere.
             type: string
         required:
+          - currentTask
+          - constraints
           - summary
           - nextAction
         type: object
       maxAutoCompactionRestarts: 50
-      toolDescription: Compact the current conversation into a fresh linked branch when context usage is high or immediately after a tool result that begins with [COMPACTION WARNING]. Preserve the user's objective, completed work, important findings, constraints, artifacts, open questions, and the next action so you can continue seamlessly without asking the user to restate prior context.
+      toolDescription: Start a fresh linked session with the supplied handoff when the user requests compaction or COMPACTION WARNING appears.
 
   # Sol: defines the thinking choices and prompt shared with Luna.
   - ref: sol
