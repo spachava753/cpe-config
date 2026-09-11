@@ -35,7 +35,7 @@ models:
         - op: add
           path: /parallel_tool_calls
           value: false
-    systemPromptPath: &gptPrompt $HOME/Library/Application Support/cpe/gpt_instructions.md
+    systemPromptPath: $HOME/Library/Application Support/cpe/astra_instructions.md
     timeout: &standardTimeout 1h
     generationParams:
       thinkingBudget: high
@@ -128,7 +128,7 @@ models:
     thinkingValues: *openAIThinkingValues
     patchRequest:
       includeHeaders: *aagHeaders
-    systemPromptPath: *gptPrompt
+    systemPromptPath: &gptPrompt $HOME/Library/Application Support/cpe/gpt_instructions.md
     timeout: *standardTimeout
     codeMode: *standardCodeMode
     compaction: *standardCompaction
