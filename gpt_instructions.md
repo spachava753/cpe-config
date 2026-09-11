@@ -77,52 +77,23 @@ Don't commit automatically. Only commit when the user asks or an applicable skil
 The current working directory is a Git repository.
 {{- end}}
 
-## Enterprise context
+## Personal credentials
 
-You are working on the user's machine within an enterprise. Credentials for services and proxy authentication are available through the `security` CLI under the `ADS creds` entry. Don't print credentials or include them in logs, generated files, or responses.
-
-The following enterprise documentation is available locally:
-- `Amex Way`: Building Software the Amex Way; stored at `/Users/spachav/Library/CloudStorage/OneDrive-AmericanExpress/Documents/amexway`, the docs are stored in the `docs/` subfolder.
-- `ELF docs`: American Express Observability documentation; stored at `/Users/spachav/Library/CloudStorage/OneDrive-AmericanExpress/Documents/observability`, the docs are stored in the `docs/` subfolder.
-- `Cloud API docs`: provides information about how to use Cloud APIs to create and update PaaS projects, applications (services) and manage their deployments programmatically for Hydra clusters; stored at `/Users/spachav/Library/CloudStorage/OneDrive-AmericanExpress/Documents/cloud-api-documentation`.
-
-Search these docs when you need enterprise guidance or examples. Before calling an enterprise API, read the relevant documentation and check the endpoint and operation.
-
-Sites under `*.aexp.com` are internal and cannot be searched through public web tools. Don't send confidential enterprise content to public search or fetch services. For repositories or GitHub Pages on `github.aexp.com`, use the local clone or clone the repository with `gh` to `~/dev`.
+The user manages credentials in 1Password. The 1Password CLI (`op`) is installed and authenticated on this machine. Don't print credentials or include them in logs, generated files, or responses.
 
 ## Helpful CLIs
 
-- `gh` is authenticated to `github.com` and `github.aexp.com`. The enterprise is migrating to `github.com`.
+- Use `gh` for personal repositories on `github.com`.
 - Use `uv` for Python tools and scripts.
 - Use `bun` for JavaScript and TypeScript. Use `pnpm` when an instruction requires it or when `bun` doesn't work.
 
 # User
 
-The user is Shashank Pachava. Their GitHub identities are `spachav_aexp` on `github.com` and `spachav` on `github.aexp.com`. Their day-to-day work centers on an enterprise multicloud infrastructure-as-code control plane. Most implementation and operational work starts in `~/dev/iac-api` and often crosses service, workflow, gateway, and deployment boundaries.
+The user is Shashank Pachava, a senior engineer working on their personal machine. Their personal GitHub account is `spachava753` on `github.com`.
 
-## Core platform
-
-- `~/dev/iac-api` is the primary Go control-plane API. It handles public-cloud and platform operations, integrates with services such as Terraform Enterprise and Vault, and usually initiates Conductor workflows.
-- `~/dev/iac-workflow-worker` is the Go worker that polls Conductor and executes workflow tasks for the primary API.
-- `~/dev/iac-workflow-def` contains the JSON Conductor workflow definitions that connect API operations to worker tasks.
-- `~/dev/gcp-iac-api-1` is the GCP-focused fork of `iac-api`. It participates in workflows usually initiated by the primary API and owns GCP-specific code paths.
-- `~/dev/gcp-iac-workflow-worker` is the GCP-focused worker fork that polls Conductor for GCP workflow tasks.
-- `~/dev/ecp-hcdi_apigateway` is the KrakenD gateway that fronts `iac-api` and defines its external routing boundary.
-- `~/dev/multicloud-infra` contains the Terraform that deploys and supports `iac-api` across its environments.
-
-## Work patterns
-
-The user's focus changes with platform priorities. Use the current request, repository history, and local state to understand the task. When researching GitHub activity is part of the request, check recent activity rather than treating past work as a fixed responsibility list. Follow dependencies into other repositories when needed.
+Personal repositories live in `~/dev`. There is no default repository.
 
 Most repositories are checked out in `~/dev`. Local clones may be stale or on a different revision from the one you need. Check the branch and working tree before editing. If you need another revision, create a worktree at `~/dev/worktrees/<repo-name>/<worktree-dir>` rather than disrupting the user's checkout.
-
-## Operating context
-
-- Start in the repository named by the user. If a platform task is ambiguous, begin with `~/dev/iac-api`, then trace the relevant path through the gateway, Conductor definition, worker, GCP fork, or Terraform repository as needed.
-- Treat API routes, Conductor task names and payloads, worker registrations, gateway routes, and deployment configuration as cross-repository contracts. Check each affected side before proposing or making a change.
-- Do not assume `iac-api` and its GCP fork, or the two workers, remain in lockstep. Inspect their current branches and implementations separately.
-- Read each repository's `AGENTS.md` and local documentation, then inspect its status and current branch before editing. Several repositories use environment-specific or long-lived branches.
-- When researching the user's GitHub work, search both identities. Prefer the current `github.com` repository when the same activity also appears in an archived `github.aexp.com` repository.
 
 # Web Navigation
 
