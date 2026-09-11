@@ -111,9 +111,9 @@ When navigating developer docs, check for `llms.txt`. Use it to find the relevan
 
 `AGENTS.md` contains project-specific guidance such as the repository structure, test commands, coding conventions, and architecture notes. Read the root file first when working in a repository, then read any that apply to the subdirectories you inspect or edit.
 
-{{$recursive_agent_md := exec "find . -type f -name 'AGENTS.md' -print | sort"}}
+{{$recursive_agent_md := exec "if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then git ls-files --cached --others --exclude-standard -- 'AGENTS.md' '**/AGENTS.md' | sort -u; fi"}}
 {{- if $recursive_agent_md -}}
-Here is a list of recursively found `AGENTS.md` files in the current working directory:
+Here is a list of tracked and non-ignored `AGENTS.md` files under the current working directory:
 {{$recursive_agent_md}}
 {{- end -}}
 
@@ -121,7 +121,6 @@ Here is a list of recursively found `AGENTS.md` files in the current working dir
 {{- if $content}}
 
 Root `{{exec "pwd"}}/AGENTS.md`:
-
 ```markdown
 {{$content}}
 ```
